@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <script src="../../mute.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Garden Guard</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main id="app">
+      <section id="stageSelect" class="screen">
+        <div class="brand">
+          <span class="brand-flower">✿</span>
+          <div>
+            <h1>Garden Guard</h1>
+            <p>Protect the vegetable patch from mischievous bug waves.</p>
+          </div>
+        </div>
+        <div id="stageCards" class="stage-grid"></div>
+      </section>
+
+      <section id="gameScreen" class="game-shell hidden">
+        <div class="topbar">
+          <button id="backToStages" class="icon-btn" title="Stage Select">←</button>
+          <div class="status-pill"><span>Coins</span><strong id="coinsText">0</strong></div>
+          <div class="status-pill"><span>Lives</span><strong id="healthText">3</strong></div>
+          <div class="status-pill wide"><span id="stageNameText">Stage</span><strong id="waveText">Wave 1 / 10</strong></div>
+          <div class="status-pill"><span>Next</span><strong id="countdownText">Ready</strong></div>
+          <button id="soundToggle" class="icon-btn" title="Sound">♪</button>
+        </div>
+
+        <div class="play-layout">
+          <div class="canvas-wrap">
+            <canvas id="gameCanvas" width="960" height="640"></canvas>
+            <div id="toastLayer" class="toast-layer"></div>
+            <div id="towerMenu" class="tower-menu hidden"></div>
+            <div id="resultOverlay" class="result-overlay hidden">
+              <h2 id="resultTitle">Victory!</h2>
+              <p id="resultText">The garden is safe.</p>
+              <div class="result-actions">
+                <button id="restartStage">Replay Stage</button>
+                <button id="chooseStage">Stage Select</button>
+              </div>
+            </div>
+          </div>
+
+          <aside class="side-panel">
+            <div class="panel-section">
+              <div class="panel-head">
+                <h2>Next Wave</h2>
+                <button id="startWaveBtn">Start Wave</button>
+              </div>
+              <div id="wavePreview" class="wave-preview"></div>
+            </div>
+
+            <div class="panel-section">
+              <h2>Selection</h2>
+              <div id="selectionPanel" class="selection-panel">
+                <p>Click a build tile to plant a defender. Right-click a tower to sell it.</p>
+              </div>
+            </div>
+
+            <div class="panel-section">
+              <h2>Tower Guide</h2>
+              <div id="towerGuide" class="tower-guide"></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <script src="./game.js"></script>
+  </body>
+</html>

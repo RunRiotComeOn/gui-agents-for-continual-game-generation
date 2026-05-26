@@ -1,0 +1,16 @@
+{
+  "backgrounds": {
+    "files": [
+      {
+        "type": "image",
+        "key": "title_bg",
+        "url": "assets/title_bg.svg"
+      },
+      {
+        "type": "image",
+        "key": "garden_bg",
+        "url": "assets/garden_bg.svg"
+      }
+    ]
+  }
+}

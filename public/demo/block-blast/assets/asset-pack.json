@@ -1,0 +1,16 @@
+{
+  "backgrounds": {
+    "files": [
+      {
+        "type": "image",
+        "key": "title_bg",
+        "url": "assets/title_bg.png"
+      },
+      {
+        "type": "image",
+        "key": "block_blast_bg",
+        "url": "assets/block_blast_bg.png"
+      }
+    ]
+  }
+}

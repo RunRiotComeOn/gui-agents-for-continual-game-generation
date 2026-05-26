@@ -1,0 +1,104 @@
+{
+  "backgrounds": {
+    "files": [
+      {
+        "type": "image",
+        "key": "chapter_select_bg",
+        "url": "assets/chapter_select_bg.png"
+      },
+      {
+        "type": "image",
+        "key": "title_bg",
+        "url": "assets/title_bg.png"
+      },
+      {
+        "type": "image",
+        "key": "koi_pond_bg",
+        "url": "assets/koi_pond_bg.png"
+      },
+      {
+        "type": "image",
+        "key": "bamboo_forest_bg",
+        "url": "assets/bamboo_forest_bg.png"
+      },
+      {
+        "type": "image",
+        "key": "lantern_path_bg",
+        "url": "assets/lantern_path_bg.png"
+      },
+      {
+        "type": "image",
+        "key": "pavilion_bg",
+        "url": "assets/pavilion_bg.png"
+      },
+      {
+        "type": "image",
+        "key": "ending_bg",
+        "url": "assets/ending_bg.png"
+      }
+    ]
+  },
+  "images": {
+    "files": [
+      {
+        "type": "image",
+        "key": "guide_portrait",
+        "url": "assets/guide_portrait.png"
+      },
+      {
+        "type": "image",
+        "key": "guide_smile",
+        "url": "assets/guide_smile.png"
+      },
+      {
+        "type": "image",
+        "key": "spirit_portrait",
+        "url": "assets/spirit_portrait.png"
+      },
+      {
+        "type": "image",
+        "key": "sudoku_panel",
+        "url": "assets/sudoku_panel.png"
+      },
+      {
+        "type": "image",
+        "key": "lantern_glow",
+        "url": "assets/lantern_glow.png"
+      },
+      {
+        "type": "image",
+        "key": "cherry_blossom",
+        "url": "assets/cherry_blossom.png"
+      }
+    ]
+  },
+  "audio": {
+    "files": [
+      {
+        "type": "audio",
+        "key": "hint_chime_sfx",
+        "url": "assets/hint_chime_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "correct_place_sfx",
+        "url": "assets/correct_place_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "garden_bgm",
+        "url": "assets/garden_bgm.wav"
+      },
+      {
+        "type": "audio",
+        "key": "mistake_soft_sfx",
+        "url": "assets/mistake_soft_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "harmony_complete_sfx",
+        "url": "assets/harmony_complete_sfx.wav"
+      }
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1536 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2d1b12"/>
+      <stop offset="100%" stop-color="#140d0a"/>
+    </linearGradient>
+    <linearGradient id="scroll" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e4c48a"/>
+      <stop offset="100%" stop-color="#b9894d"/>
+    </linearGradient>
+  </defs>
+  <rect width="1536" height="1024" fill="url(#bg)"/>
+  <g opacity="0.12" stroke="#f5deb3" stroke-width="6">
+    <path d="M0 120 C280 60, 520 180, 768 120 S1250 40, 1536 120" fill="none"/>
+    <path d="M0 820 C260 760, 620 900, 930 820 S1290 760, 1536 840" fill="none"/>
+  </g>
+  <rect x="168" y="88" width="1200" height="848" rx="28" fill="#000" opacity="0.25"/>
+  <rect x="192" y="64" width="1152" height="896" rx="24" fill="url(#scroll)" stroke="#6d421d" stroke-width="10"/>
+  <g fill="none" stroke="#8b5a2b" opacity="0.35">
+    <path d="M250 130 H1280"/>
+    <path d="M250 880 H1280"/>
+    <path d="M250 200 C500 180, 900 220, 1280 190"/>
+  </g>
+  <text x="768" y="290" text-anchor="middle" font-size="112" font-family="Georgia, Cambria, serif" font-weight="700" fill="#572d12">HUARONG DAO</text>
+  <text x="768" y="400" text-anchor="middle" font-size="56" font-family="Georgia, Cambria, serif" fill="#6b3f1d">Cao Cao's Escape</text>
+  <text x="768" y="760" text-anchor="middle" font-size="40" font-family="Georgia, Cambria, serif" fill="#7a4a23">A wooden board puzzle of careful moves</text>
+</svg>

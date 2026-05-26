@@ -1,0 +1,16 @@
+{
+  "main": {
+    "files": [
+      { "type": "image", "key": "title_bg", "url": "assets/title_bg.svg" },
+      { "type": "image", "key": "level_bg", "url": "assets/level_bg.svg" },
+      { "type": "image", "key": "board_tile", "url": "assets/board_tile.svg" },
+      { "type": "image", "key": "cao_cao", "url": "assets/cao_cao.svg" },
+      { "type": "image", "key": "guan_yu_h", "url": "assets/guan_yu_h.svg" },
+      { "type": "image", "key": "zhang_fei_v", "url": "assets/zhang_fei_v.svg" },
+      { "type": "image", "key": "zhao_yun_v", "url": "assets/zhao_yun_v.svg" },
+      { "type": "image", "key": "ma_chao_v", "url": "assets/ma_chao_v.svg" },
+      { "type": "image", "key": "huang_zhong_v", "url": "assets/huang_zhong_v.svg" },
+      { "type": "image", "key": "soldier", "url": "assets/soldier.svg" }
+    ]
+  }
+}

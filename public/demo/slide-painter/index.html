@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <script src="../../mute.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Star Slide Painter</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23061926'/%3E%3Cpath d='M32 10 54 32 32 54 10 32Z' fill='%23ffc85a'/%3E%3Cpath d='M32 19 45 32 32 45 19 32Z' fill='%2357e7ff'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main id="app">
+      <section class="shell">
+        <header class="topbar">
+          <div class="brand">
+            <span class="brand-mark">◇</span>
+            <div>
+              <h1>Star Slide Painter</h1>
+              <p>Slide in straight lines and light every tile.</p>
+            </div>
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <span>Level</span>
+              <strong id="levelText">1</strong>
+            </div>
+            <div class="stat">
+              <span>Moves</span>
+              <strong id="movesText">0</strong>
+            </div>
+            <div class="stat">
+              <span>Left</span>
+              <strong id="leftText">0</strong>
+            </div>
+            <div class="stat">
+              <span>Time</span>
+              <strong id="timeText">00:00</strong>
+            </div>
+          </div>
+        </header>
+
+        <section class="game-layout">
+          <div class="canvas-panel">
+            <canvas id="gameCanvas" width="980" height="760" aria-label="Star Slide Painter game canvas"></canvas>
+            <div id="message" class="message hidden"></div>
+            <div id="levelComplete" class="overlay hidden">
+              <div class="overlay-card">
+                <span class="complete-kicker">CLEAR</span>
+                <h2>All tiles are painted</h2>
+                <p id="completeStats">Level complete</p>
+                <div class="overlay-actions">
+                  <button id="nextLevelBtn">Next Level</button>
+                  <button id="replayBtn">Replay Level</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="side-panel">
+            <div class="panel-block">
+              <h2>Controls</h2>
+              <div class="dpad" aria-label="Directional controls">
+                <button data-dir="up" title="Up">↑</button>
+                <button data-dir="left" title="Left">←</button>
+                <button data-dir="right" title="Right">→</button>
+                <button data-dir="down" title="Down">↓</button>
+              </div>
+            </div>
+
+            <div class="panel-block">
+              <h2>Actions</h2>
+              <div class="actions">
+                <button id="resetBtn">Reset Position</button>
+                <button id="randomBtn">New Board</button>
+                <button id="hintBtn">Hint</button>
+              </div>
+            </div>
+
+            <div class="panel-block legend">
+              <h2>Tiles</h2>
+              <div><span class="chip normal"></span>Normal: paint once</div>
+              <div><span class="chip hard"></span>Reinforced: pass multiple times</div>
+              <div><span class="chip wall"></span>Wall: the slider stops before it</div>
+            </div>
+          </aside>
+        </section>
+      </section>
+    </main>
+
+    <script src="./game.js"></script>
+  </body>
+</html>

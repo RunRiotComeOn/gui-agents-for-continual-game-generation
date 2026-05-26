@@ -1,0 +1,38 @@
+{
+  "anims": [
+    { "key": "ironman_idle_anim", "type": "frame", "frames": [{ "key": "ironman_idle_01", "duration": 400 }, { "key": "ironman_idle_02", "duration": 400 }], "repeat": -1 },
+    { "key": "ironman_run_anim", "type": "frame", "frames": [{ "key": "ironman_run_01", "duration": 200 }, { "key": "ironman_run_02", "duration": 200 }], "repeat": -1 },
+    { "key": "ironman_jump_anim", "type": "frame", "frames": [{ "key": "ironman_jump_01", "duration": 300 }, { "key": "ironman_jump_02", "duration": 300 }], "repeat": -1 },
+    { "key": "ironman_attack_1_anim", "type": "frame", "frames": [{ "key": "ironman_attack_1_01", "duration": 150 }, { "key": "ironman_attack_1_02", "duration": 150 }], "repeat": 0 },
+    { "key": "ironman_attack_2_anim", "type": "frame", "frames": [{ "key": "ironman_attack_2_01", "duration": 200 }, { "key": "ironman_attack_2_02", "duration": 200 }], "repeat": 0 },
+    { "key": "ironman_die_anim", "type": "frame", "frames": [{ "key": "ironman_die_01", "duration": 300 }, { "key": "ironman_die_02", "duration": 300 }], "repeat": 0 },
+
+    { "key": "thor_idle_anim", "type": "frame", "frames": [{ "key": "thor_idle_01", "duration": 400 }, { "key": "thor_idle_02", "duration": 400 }], "repeat": -1 },
+    { "key": "thor_run_anim", "type": "frame", "frames": [{ "key": "thor_run_01", "duration": 200 }, { "key": "thor_run_02", "duration": 200 }], "repeat": -1 },
+    { "key": "thor_jump_anim", "type": "frame", "frames": [{ "key": "thor_jump_01", "duration": 300 }, { "key": "thor_jump_02", "duration": 300 }], "repeat": -1 },
+    { "key": "thor_attack_1_anim", "type": "frame", "frames": [{ "key": "thor_attack_1_01", "duration": 150 }, { "key": "thor_attack_1_02", "duration": 150 }], "repeat": 0 },
+    { "key": "thor_attack_2_anim", "type": "frame", "frames": [{ "key": "thor_attack_2_01", "duration": 200 }, { "key": "thor_attack_2_02", "duration": 200 }], "repeat": 0 },
+    { "key": "thor_die_anim", "type": "frame", "frames": [{ "key": "thor_die_01", "duration": 300 }, { "key": "thor_die_02", "duration": 300 }], "repeat": 0 },
+
+    { "key": "hulk_idle_anim", "type": "frame", "frames": [{ "key": "hulk_idle_01", "duration": 400 }, { "key": "hulk_idle_02", "duration": 400 }], "repeat": -1 },
+    { "key": "hulk_run_anim", "type": "frame", "frames": [{ "key": "hulk_run_01", "duration": 200 }, { "key": "hulk_run_02", "duration": 200 }], "repeat": -1 },
+    { "key": "hulk_jump_anim", "type": "frame", "frames": [{ "key": "hulk_jump_01", "duration": 300 }, { "key": "hulk_jump_02", "duration": 300 }], "repeat": -1 },
+    { "key": "hulk_attack_1_anim", "type": "frame", "frames": [{ "key": "hulk_attack_1_01", "duration": 150 }, { "key": "hulk_attack_1_02", "duration": 150 }], "repeat": 0 },
+    { "key": "hulk_attack_2_anim", "type": "frame", "frames": [{ "key": "hulk_attack_2_01", "duration": 200 }, { "key": "hulk_attack_2_02", "duration": 200 }], "repeat": 0 },
+    { "key": "hulk_die_anim", "type": "frame", "frames": [{ "key": "hulk_die_01", "duration": 300 }, { "key": "hulk_die_02", "duration": 300 }], "repeat": 0 },
+
+    { "key": "ultron_sentry_idle_anim", "type": "frame", "frames": [{ "key": "ultron_sentry_idle_01", "duration": 400 }, { "key": "ultron_sentry_idle_02", "duration": 400 }], "repeat": -1 },
+    { "key": "ultron_sentry_run_anim", "type": "frame", "frames": [{ "key": "ultron_sentry_run_01", "duration": 200 }, { "key": "ultron_sentry_run_02", "duration": 200 }], "repeat": -1 },
+    { "key": "ultron_sentry_jump_anim", "type": "frame", "frames": [{ "key": "ultron_sentry_jump_01", "duration": 300 }, { "key": "ultron_sentry_jump_02", "duration": 300 }], "repeat": -1 },
+    { "key": "ultron_sentry_attack_1_anim", "type": "frame", "frames": [{ "key": "ultron_sentry_attack_1_01", "duration": 150 }, { "key": "ultron_sentry_attack_1_02", "duration": 150 }], "repeat": 0 },
+    { "key": "ultron_sentry_attack_2_anim", "type": "frame", "frames": [{ "key": "ultron_sentry_attack_2_01", "duration": 200 }, { "key": "ultron_sentry_attack_2_02", "duration": 200 }], "repeat": 0 },
+    { "key": "ultron_sentry_die_anim", "type": "frame", "frames": [{ "key": "ultron_sentry_die_01", "duration": 300 }, { "key": "ultron_sentry_die_02", "duration": 300 }], "repeat": 0 },
+
+    { "key": "thanos_idle_anim", "type": "frame", "frames": [{ "key": "thanos_idle_01", "duration": 400 }, { "key": "thanos_idle_02", "duration": 400 }], "repeat": -1 },
+    { "key": "thanos_run_anim", "type": "frame", "frames": [{ "key": "thanos_run_01", "duration": 200 }, { "key": "thanos_run_02", "duration": 200 }], "repeat": -1 },
+    { "key": "thanos_jump_anim", "type": "frame", "frames": [{ "key": "thanos_jump_01", "duration": 300 }, { "key": "thanos_jump_02", "duration": 300 }], "repeat": -1 },
+    { "key": "thanos_attack_1_anim", "type": "frame", "frames": [{ "key": "thanos_attack_1_01", "duration": 200 }, { "key": "thanos_attack_1_02", "duration": 200 }], "repeat": 0 },
+    { "key": "thanos_attack_2_anim", "type": "frame", "frames": [{ "key": "thanos_attack_2_01", "duration": 200 }, { "key": "thanos_attack_2_02", "duration": 200 }], "repeat": 0 },
+    { "key": "thanos_die_anim", "type": "frame", "frames": [{ "key": "thanos_die_01", "duration": 300 }, { "key": "thanos_die_02", "duration": 300 }], "repeat": 0 }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "section1": {
+    "files": [
+      {
+        "type": "image",
+        "key": "museum_pixel_atlas",
+        "url": "assets/museum_pixel_atlas.png"
+      },
+      {
+        "type": "image",
+        "key": "museum_sprite_sheet",
+        "url": "assets/museum_sprite_sheet.png"
+      }
+    ]
+  }
+}

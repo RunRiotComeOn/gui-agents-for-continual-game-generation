@@ -1,0 +1,1227 @@
+                            GUI Agents for Continual Game Generation
+
+
+                                             Anonymous ACL submission
+
+
+
+
+001                         Abstract                              report back what no inspection can see: a button        042
+                                                                  press that gets no response, a sprite that fails to     043
+002       Recent code-generation systems can synthe-
+003       size playable games from a single prompt, but
+                                                                  render, a win condition that never triggers.            044
+
+004       their outputs raise an evaluation question that            Recent LLM-based code generators have begun          045
+005       source code alone cannot answer: a game’s               to produce increasingly capable programs from           046
+006       quality lives in what happens when it is played,        natural-language prompts (Zheng et al., 2023; Zhu       047
+007       not in what passes inspection. We address               et al., 2024; Dong et al., 2025), including interac-    048
+008       this with two complementary contributions.              tive web game artifacts (Hu et al., 2024; Gallotta      049
+009       PlaytestArena is an environment where each              et al., 2024; Sweetser, 2024). Yet this progress has    050
+010       generation task is paired with a rubric of ex-
+                                                                  outpaced playtesting itself: generators produce can-    051
+011       pected in-game behaviors, and a GUI agent acts
+012       as a playtester that loads each generated game,         didate games faster than any human can play them,       052
+
+013       interacts with it, and judges whether the rubric        while what makes a game good remains as inac-           053
+014       is satisfied. Play2Code repurposes the same             cessible to inspection as it ever was. In most code     054
+015       GUI playtester as a source of refinement signal:        generation tasks, quality can be checked against        055
+016       it plays each candidate build, identifies fail-         tests or specifications. In game generation, it can-    056
+017       ures, and proposes code-level fixes that a code-        not. Under this constraint, how to evaluate and         057
+018       generation agent applies in the next round, with
+                                                                  improve game generation remains an open ques-           058
+019       a shared memory preserving experience across
+020       rounds and across tasks. Across diverse game
+                                                                  tion (Hu et al., 2024; Mu et al., 2026).                059
+
+021       genres, Play2Code substantially outperforms                To bridge this gap, we introduce PlaytestArena,      060
+022       both single-pass and agentic-coding baselines           the first environment for studying game genera-         061
+023       on PlaytestArena, and the playtester’s feedback         tion when quality lives in play rather than in code     062
+024       proves both more traceable than a human re-             (§3). Our arena consists of a curated set of game       063
+025       port and idiosyncratic in ways reminiscent of           generation tasks, each pairing a natural-language       064
+026       human testers themselves.                               prompt with a rubric of expected in-play behaviors      065
+
+027   1   Introduction                                            that defines what playing the game should look          066
+                                                                  like when correctly implemented. A GUI agent            067
+028       “A game is a series of interesting choices.”            serves as the evaluator: it loads each generated        068
+
+029                                            — Sid Meier        game in a browser, plays it through clicks and keys,    069
+                                                                  and adjudicates each rubric criterion as pass or fail   070
+030      A musical score, by itself, is silent. Every note        based on what it observes during play (Deng et al.,     071
+031   in place, every dynamic marked, every tempo spec-           2023; Xie et al., 2024; Nguyen et al., 2025; Qin        072
+032   ified. Yet whether the music is moving, dull, or            et al., 2025). The tasks span common game genres,       073
+033   merely correct cannot be known until someone                including puzzle, strategy, and card games, each        074
+034   plays it. Even the most trained musician cannot             challenging generators with different demands on        075
+035   judge a piece from the page alone. It must be heard,        stateful gameplay, input handling, and visual feed-     076
+036   performed, lived.                                           back (Wikipedia contributors, 2026; Poki, 2026;         077
+037      A game, like a score, must be played. It can com-        itch.io, 2026). PlaytestArena is useful for studying    078
+038   pile, run, and pass every test, yet be broken in ways       how generation methods perform when the unit of         079
+039   no static analysis can reveal. This is why the game         evaluation shifts from code to play.                    080
+040   industry has long relied on human playtesters: peo-            One natural question is what playing can give        081
+041   ple who sit down with a build, play for hours, and          back to code. To study GUI agents as player sur-        082
+
+
+                                                              1
+                                                         End-to-End
+                 Static Generation                                                           Continual Evolution (Ours)
+                                                        Agentic System
+
+
+
+
+                   One-shot generation                  Multi-step code generation            Generation becomes a dialogue
+                   from prompt to game                  and runtime probing                   between coding and playing.
+
+
+      Figure 1: Three paradigms for AI-driven game generation. Unlike prior one-shot or runtime-probing pipelines,
+      Play2Code makes generation a sustained dialogue between coding and playing.
+
+
+083   rogates, we introduce Play2Code, a system that                 accumulate across rounds and across tasks. Across        119
+084   bridges game generation and playtesting, and sus-              three frontier backbones, Play2Code outperforms          120
+085   tains their interaction to refine the game (§4). As            both single-pass and agentic-coding baselines on         121
+086   specified in Figure 1, prior work treats game genera-          PlaytestArena, with rubric scores rising monotoni-       122
+087   tion as end-to-end synthesis, where a single prompt            cally across rounds. Lastly, we take a closer look at    123
+088   yields a single artifact (Hu et al., 2024; Jiang et al.,       what the GUI playtester contributes and find that its    124
+089   2026b). Play2Code treats it as continual evolu-                feedback is traceable in ways a human report is not,     125
+090   tion, with each build shaped by what the previous              and idiosyncratic in ways reminiscent of human           126
+091   one was like to play (Wang et al., 2025b; Huang                testers themselves.                                      127
+092   et al., 2026a). A code-generation agent and a GUI
+093   playtester operate in a loop. The playtester sur-              2   Can GUI Agents Playtest?                             128
+094   faces observations from each build, and the gen-
+095   erator uses them to refine the next. Generation                Consider how a human playtester actually works.          129
+096   becomes not a one-shot translation but a sustained             They open the build, sit in front of the screen,         130
+097   dialogue between coding and playing (Shinn et al.,             and engage with the game in real time, perceiving        131
+098   2023; Wang et al., 2023; Gao et al., 2025; Tao et al.,         what the game renders, deciding what to do, acting       132
+099   2024).                                                         through keyboard and mouse, and reacting moment-         133
+100      In this paper, we study the following research              to-moment to what unfolds on screen. Their access        134
+101   questions:                                                     to the game is mediated entirely by its presenta-        135
+102      RQ1: How does the nature of games reshape                   tional surface. What they produce is not a code          136
+103   what counts as “better”?                                       review but a record of what the game was like to         137
+104      RQ2: What must a “player” look like, and where              play: which mechanics worked, where the experi-          138
+105   should it sit?                                                 ence broke down, what felt missing.                      139
+106      RQ3: How does such a “player” drive game                       This is also where GUI agents live. A GUI             140
+107   generation, and does it drive it where a human                 agent perceives the rendered interface, decides          141
+108   would?                                                         on actions grounded in that perception, and acts         142
+109      To study these questions, we make three                     through the same input channels a human would:           143
+110   complementary contributions. First, we build                   clicks, key presses, scrolls. Among the candidate        144
+111   PlaytestArena, a testbed of 200 game generation                surrogates one might imagine, code-reading crit-         145
+112   tasks spanning eight genres, each paired with a                ics (Sistla and Kleiman-Weiner, 2026; Yadavally          146
+113   rubric of expected in-play behaviors and adjudi-               et al., 2025), scripted API drivers (Shin et al.,        147
+114   cated by a GUI agent that loads the build in a                 2020; Balla et al., 2024; Ran et al., 2026), or GUI      148
+115   browser and plays it. On top of this, we develop               agents themselves (Wang et al., 2024; Ouyang et al.,     149
+116   Play2Code, a system in which a code-generation                 2026), only the last meets the game on the sur-          150
+117   agent and a GUI playtester operate in a sustained              face where playtesting takes place. We therefore         151
+118   loop, with a shared memory that lets experience                take GUI agents as the natural surrogate for human       152
+
+
+                                                                 2
+           “Snake is near the center, apple is    “Snake has eaten the apple and           “New apple appears at upper-left,        “Snake is aligned with the apple’s
+          immediately to the left of the head”            grown longer”                  snake head is below and to the right”       column, apple is above the head”
+
+
+                                                    “No apple visible, move                   “Move left to get closer
+              “Move left to eat the apple”                                                                                          “Move upward toward the apple”
+                                                     downward to explore”                          to the apple”
+
+
+                       ArrowLeft                            ArrowDown                                 ArrowLeft                                 ArrowUp
+
+
+
+
+                                                  “Snake has eaten the apple and           “New apple appears to the right           “Snake head is next to the
+           “Snake head is just below the apple”
+                                                          grown longer”                          of the snake head”                      apple on its left”
+
+
+                                                  “No apple visible, move right
+               “Move up to eat the apple”                                                 “Move right to approach the apple”          “Move right to eat the apple”
+                                                          to explore”
+
+
+                        ArrowUp                             ArrowRight                                ArrowRight                               ArrowRight
+
+
+
+
+      Figure 2: An example session of GUI agent playing Snake. In our Snake setting, the game advances one grid cell at
+      a time, and at each grid step the GUI agent decides the next movement direction. For each game state, the agent
+      records its observation of the current screen, its reasoning about what should be done next, and the resulting action
+      (keyboard input). Across the eight steps, the agent tracks the snake and apple positions, updates its plan after each
+      state transition, and selects the next move accordingly.
+
+
+153   playtesters.                                                                     the aggregate numbers, GUI agents exhibit the                                     179
+                                                                                       three capabilities a playtester needs: (1) They ob-                               180
+154      Surface compatibility, however, is only a neces-
+                                                                                       serve: their state descriptions reflect the rendered                              181
+155   sary condition. Whether GUI agents can actually
+                                                                                       game screen, including object locations, interface                                182
+156   perform playtesting remains to be shown. We ver-
+                                                                                       changes, and failure states. (2) They reason: their                               183
+157   ify this directly by assembling a small testbed of 20
+                                                                                       intermediate decisions connect the current observa-                               184
+158   games, curated from both LLM-assisted game spec-
+                                                                                       tion to the next intended goal, such as approaching                               185
+159   ifications and public web games, spanning puzzle,
+                                                                                       a target, avoiding an obstacle, or retrying after a                               186
+160   strategy, card, platformer, and management games.
+                                                                                       failed interaction. (3) They act: their keyboard                                  187
+161   Because games vary widely in length and structure,
+                                                                                       and mouse inputs follow from this reasoning and                                   188
+162   we evaluate performance at individual game lev-
+                                                                                       produce observable state transitions in the game.                                 189
+163   els: each game is decomposed into several discrete
+                                                                                       Figure 2 walks through one such session, showing                                  190
+164   levels, yielding approximately 120 levels in total.
+                                                                                       the agent’s observations, reasoning, and actions                                  191
+165   An agent is considered to have passed a level if
+                                                                                       over a playing trajectory. This illustrates that the                              192
+166   it satisfies the level’s completion condition within
+                                                                                       agent is not merely judging a static artifact, but gen-                           193
+167   an episode. We connect three GUI agent back-
+                                                                                       uinely interacting with the game and, when needed,                                194
+168   bones (GPT-5.4 (OpenAI, 2025), Claude Sonnet
+                                                                                       producing signals for evaluation and refinement                                   195
+169   4.6 (Anthropic, 2026), and Kimi K2.5 (Moonshot
+                                                                                       based on the trajectory.                                                          196
+170   AI, 2026)) to each game and let them play indepen-
+171   dently, logging observations, reasoning, actions,
+                                                                                       Table 1: Pass@k for GUI agent backbones and the
+172   and post-session summary. As a reference point,
+                                                                                       human reference.
+173   we recruit three human players to play the same
+174   levels under matched conditions.                                                   Agent                           pass@5     pass@10           pass@20
+175     Table 1 reports pass@k for each backbone and                                     GPT-5.4                             0.67     0.75                0.82
+176   the human reference at k ∈ {5, 10, 20}. All three                                  Sonnet 4.6                          0.63     0.76                0.79
+                                                                                         Kimi K2.5                           0.52     0.68                0.72
+177   GUI agents clear the majority of levels, with GPT-
+                                                                                         Human Reference                     0.83     0.92                0.92
+178   5.4 approaching the human reference. Beyond
+
+                                                                                   3
+                                      Other
+                            Shooter   2.5%
+                                                                    forms (itch.io, 2026; Poki, 2026), covering puz-        231
+                              5%
+                                              Puzzle
+                                                                    zle games, strategy games, card games, and others       232
+               Management                      25%
+                  10%                                               (Figure 3), totaling 200. For each topic, we recuited   233
+                                                                    5 human experts, as demonstrated in Appendix §A,        234
+                                                                    to author prompts sketching the intended game,          235
+             Action
+             12.5%
+                                                                    specifying stateful gameplay, win and loss condi-       236
+                                                                    tions, player input, and feedback behavior. Vague       237
+                                                                    or non-self-contained prompts are removed in a          238
+                                                  Strategy
+               Platformer                          17.5%            final manual pass.                                      239
+                  12.5%
+                                                                    Rubrics Construction To build rubrics paired            240
+                                      Card
+                                      15%                           with prompts, we follow recent rubric-based evalu-      241
+                                                                    ation practice (Arora et al., 2025; Li et al., 2026):   242
+      Figure 3: Distribution of game genres in PlaytestArena.
+                                                                    human experts write criteria covering the intended      243
+      The benchmark spans eight genres, ranging from puzzle
+      and strategy to action and shooter games.                     mechanics, controls, progression, interface, and vi-    244
+                                                                    sual feedback; they then refines these into testable    245
+                                                                    items, each stating an expected behavior such as        246
+197   3   What’s “Better”: PlaytestArena                            "the game loads and renders without errors" or "the     247
+                                                                    spawned enemies move toward the player’s posi-          248
+198   Having established that GUI agents can carry                  tion". A final human pass ensures every item is         249
+199   out playtest (§2), we now build the environment               concrete, observable, and faithful to the prompt.       250
+200   where they can judge what’s "good" game gen-                  The result is a per-game specification of what play-    251
+201   eration. Existing benchmarks for AI-generated                 ing the generated artifact should reveal, against       252
+202   games remain scarce: while a handful of recent                which any generation attempt can be checked.            253
+203   efforts have begun to probe this question (e.g.,
+204   OpenGame-Bench (Jiang et al., 2026b) and We-                  Evaluation Given a generation prompt, a gener-          254
+205   bGameBench (Zhang et al., 2026)), none of them                ated game, and the game’s rubric, the GUI agent         255
+206   are publicly released, leaving the community with-            loads the game in a browser and plays it, observ-       256
+207   out a shared substrate on which to compare game               ing the rendered interface, taking actions through      257
+208   generation methods. Therefore, We construct                   clicks and keys, and tracking which rubric crite-       258
+209   PlaytestArena from scratch. We instantiate tar-               ria its observations support, aligning with human       259
+210   get games as self-contained HTML/CSS/JS bun-                  playtesters. For each criterion, the agent issues       260
+211   dles, which run in any modern browser without                 a pass-fail judgment grounded in the gameplay it        261
+212   per-environment setup and place game playtesting              has experienced, paired with the expected behavior      262
+213   in the same substrate as the broader web GUIs that            that defines what evidence justifies a pass. The fi-    263
+214   contemporary GUI agents already operate on, there-            nal score for a generated game is the fraction of its   264
+215   fore allowing a single agent stack to evaluate both           rubric criteria that the GUI playtester adjudicates     265
+216   regimes from raw screenshots. PlaytestArena re-               as passed.                                              266
+217   quires two components. First, a set of target games
+218   each with a generation prompt that defines what the           Is the GUI Evaluator Reliable? Because ev-              267
+
+219   game should be, and a rubric that defines what play-          ery PlaytestArena score is adjudicated by a GUI         268
+
+220   ing it should look like when correctly implemented.           agent rather than a human, the benchmark inher-         269
+
+221   Second, a playtester capable of inspecting whether            its whatever bias that judge carries. To validate       270
+
+222   a generated game realizes its rubric by playing the           it, we collect per-criterion judgments from blind       271
+
+223   game and reporting what it observes. The first com-           human annotators on a 32-game stratified sam-           272
+
+224   ponent defines what "better" means for each game;             ple spanning all eight genres and the full quality      273
+
+225   the second turns that definition into a score.                range produced by the three methods in §5. We           274
+                                                                    report agreement along two axes: per-criterion          275
+226   Game Prompts Construction Each entry in                       agreement between the GUI judge and each hu-            276
+227   PlaytestArena consists of a generation prompt and             man (averaged over the three GUI–human pairs),          277
+228   a corresponding rubric. Game topics are first                 and per-game ranking consistency between the two        278
+229   collected from common game genres (Wikipedia                  score orderings. At the per-criterion level, the GUI    279
+230   contributors, 2026) and public web-game plat-                 judge matches humans on 84.2% of items with av-         280
+
+
+                                                                4
+                                                            Generate                      Play & Report                   Revise
+
+
+
+                            Game Agent                                         Shared Game Runtime                                              GUI Agent
+
+                                                                                                                        load &
+                                                                                                                          play
+                 Prompt
+                                                               generate /
+                                                                 patch
+                 Previous
+                   Build
+                                                                                                                         play
+                                                                                                                        trace
+                 Memory                                                                                                                  Play Summary        Actionable Fixes
+                                                                                                                                            —————                —————
+                                                                                                                                            —————                —————
+                                                                                                                                            —————                —————
+
+                 Writes, debugs, and revises game code                                Game loads and renders
+                                                                                                                                         Plays the game and reports findings
+
+
+
+                                                                                    Summary + Fix List
+
+
+                                                                                     Memory System
+
+                          Episode Memory                                               Skill Memory                                          World Memory
+
+               Game Agent        Shared Space           GUI Agent                  Game Agent             GUI Agent
+                                                                                   Skill Space            Skill Space                          Shared World Knowledge
+              Private Space       (between)            Private Space
+
+
+          stores round history, summaries, fixes, attempts             role-specific know-how, patterns, strategies                game rules, archetypes, design principles
+
+
+
+      Figure 4: Overview of Play2Code. Play2Code couples a game agent and a GUI agent through a shared game
+      runtime. In each round, the game agent generates or patches a HTML-based game, the GUI agent loads and plays
+      the build, and its play trace is converted into a play summary and actionable fix list that guide the next revision.
+      Across rounds and tasks, Play2Code maintains a memory system with episode memory, skill memory, and world
+      memory. This turns GUI playtesting into a continual refinement signal for game generation.
+
+
+281   erage Cohen’s κ = 0.64, within the human–human                                                 record of what went wrong, where it went wrong,                            297
+282   band (0.66 averaged over the human pairs). At                                                  and what might fix it. We repurpose the GUI agent                          298
+283   the game level, GUI-derived and human-derived                                                  for this second role, as a source of refinement signal                     299
+284   rubric scores rank the 32 games near-identically                                               that drives game generation itself.                                        300
+285   (Spearman’s ρ = 0.87, Pearson’s r = 0.88), so the                                                 To put the GUI agent in this role, we introduce                         301
+286   method comparisons in §5 are robust to the eval-                                               Play2Code, a system that bridges game genera-                              302
+287   uator’s residual noise on absolute verdicts. Full                                              tion and playtesting and sustains their interaction                        303
+288   setup, per-pair breakdowns, and disagreement case                                              across rounds (Figure 4). At its core, Play2Code                           304
+289   studies are reported in Appendix §B.                                                           couples two agents around a shared game runtime.                           305
+                                                                                                     A Game Agent writes, debugs, and patches game                              306
+          Metric                      GUI–Human                    Human–Human                       code. A GUI Agent plays the resulting build and                            307
+          Raw agreement (%)                     84.2                        90.7                     reports what it experienced. Each generation task                          308
+          Cohen’s κ                             0.64                        0.66
+          Spearman’s ρ                          0.87                        0.91
+                                                                                                     unfolds as a sequence of rounds, each consisting                           309
+          Pearson’s r                           0.88                        0.91                     of a generate step by the game agent and a play-                           310
+                                                                                                     and-report step by the GUI agent. The first round                          311
+      Table 2: Agreement between the GUI and human evalu-                                            starts from the generation prompt alone; every sub-                        312
+      ators on 32 PlaytestArena games. GUI–Human reports                                             sequent round is conditioned on what playtesting                           313
+      the mean over three GUI–human pairs; Human–Human
+                                                                                                     revealed about the previous build.                                         314
+      reports the mean over three human–human pairs.
+                                                                                                        The following sections focus on the concep-                             315
+                                                                                                     tual description of the essential components in                            316
+290   4     Play2Code                                                                                Play2Code. Further implementation details, in-                             317
+                                                                                                     cluding the workflows of the Game Agent and GUI                            318
+291   So far we have positioned the GUI agent as an eval-                                            Agent and the management of the memory system,                             319
+292   uator (§3). But evaluation is only one of the things                                           are provided in Appendix §D.                                               320
+293   a playtester does. A playtester also drives revision:
+294   they don’t merely score a build, they shape what                                               Game Agent The game agent produces or re-                                  321
+295   the next build becomes. When a human playtester                                                vises code conditioned on the prompt, the most re-                         322
+296   reports back to designers, what they hand over is a                                            cent build, the episode memory, and the cross-task                         323
+
+
+                                                                                                 5
+324   skill and world memories. The output is written              cable across genres. Together, these layers turn        374
+325   into a shared runtime, packaged as a self-contained          Play2Code from a per-game evolution loop into a         375
+326   HTML-based artifact that the GUI agent can imme-             system whose competence grows with experience.          376
+327   diately load.
+                                                                   5   Does Play Drive Code Generation?                    377
+328   GUI Agent The GUI agent loads the runtime in
+329   a browser and plays through it, working only from            To test whether positioning a GUI agent inside the      378
+330   the generation prompt without access to any code             generation process in Play2Code matters, we com-        379
+331   information or evaluation rubric, and deciding for           pare Play2Code against two baselines that adopt         380
+332   itself when the episode has run long enough to sup-          two previous paradigm for AI-driven game genera-        381
+333   port a judgment. Once the episode ends, the GUI              tion (Figure 1). Direct LLM prompts the model to        382
+334   agent compiles its action and observation log into           emit the entire game in a single pass. OpenGame         383
+335   two artifacts. The first is a summary describing             runs an end-to-end agentic pipeline that iteratively    384
+336   what happened during play, including which in-               builds, runs, and inspects the game at syntactic        385
+337   tended behaviors were exhibited and which were               and compiling level. Play2Code adds the missing         386
+338   not. The second is a list of actionable fixes that map       component: a GUI agent that plays each gener-           387
+339   observed failures to concrete code-level changes,            ated build and feeds prescriptive report back into      388
+340   for example, enemies remain stationary when they             the next round of generation. We instantiate each       389
+341   should patrol → verify enemy patrol trigger condi-           method with three backbone models used as both          390
+342   tions. Both are written into the shared subspace of          game agent and GUI agent: Claude Sonnet 4.6,            391
+343   the episode memory.                                          GPT-5.4, and Kimi K2.5.                                 392
+
+344   Between Rounds The game agent reads the sum-                 Playtesting exposes what code-level signals miss.       393
+345   mary and the fix list and decides, on its own, which         As reported in Table 3, Play2Code’s advantage over      394
+346   fixes are worth acting on and which to defer or              Direct LLM is large (30.5 → 69.2 averaged across        395
+347   discard, treating the GUI agent’s report as advice           backbones), reflecting the gap between generating       396
+348   rather than instruction. A new round begins with             from a prompt in one shot and generating against        397
+349   the game agent revising the build accordingly. The           observed play: a single-pass generator commits          398
+350   loop terminates when the GUI agent judges that               to an artifact without ever seeing whether it ac-       399
+351   the build meets the intent of the prompt, or when a          tually plays, so any mismatch between intended          400
+352   maximum number of rounds is reached.                         and realized behavior goes uncorrected. The ad-         401
+                                                                   vantage over OpenGame is smaller but consistent         402
+353   Memory System Across many generation tasks,                  (53.3 → 69.2), and is the more revealing compari-       403
+354   we noticed that the same kinds of failures recur             son. OpenGame is already an agentic system that         404
+355   such as a platformer’s jump arc and a tower de-              builds, runs, and inspects games iteratively; what      405
+356   fense’s wave scheduling. Each genre carries char-            it does not do is play. The gain of Play2Code over      406
+357   acteristic pitfalls that the game agent rediscovers          OpenGame is therefore attributable to the playtest-     407
+358   from scratch. To preserve and reuse this expe-               ing feedback signal specifically, failures that sur-    408
+359   rience, Play2Code organizes memory along two                 face only during interaction, such as unresponsive      409
+360   dimensions, lifecycle (in-task or cross-task) and            controls, missing state transitions, or win condi-      410
+361   scope (private, shared between agents, or common             tions that never trigger, and that runtime inspection   411
+362   to all), yielding three layers. Episode Memory               at the code or compilation level cannot detect.         412
+363   is in-task: each agent has its own workspace aug-
+364   mented with a shared subspace where summaries,               Continual playtesting drives round-wise game            413
+365   fixes, and attempts accumulate across rounds. Skill          evolution. We further examine how Play2Code             414
+366   Memory is cross-task and agent-isolated, holding             improves within a single evolving trajectory. As        415
+367   the operational know-how each agent has accu-                shown in Figure 6 (a), for each generated game,         416
+368   mulated in its role, such as recurring code pat-             we record the rubric score after each play–code         417
+369   terns for the game agent or interaction strategies           round. The scores increase monotonically from           418
+370   for the GUI agent. World Memory is cross-task                Round 1 to Round 3, showing that GUI feedback           419
+371   and shared across all agents, recording knowledge            is actionable: failures observed are translated into    420
+372   about games themselves, including general rules,             concrete fixes that improve the next build. Early       421
+373   common archetypes, and design principles appli-              rounds often expose basic interaction failures, such    422
+
+
+                                                               6
+                     ArrowRight                       ArrowRight            + ArrowRight + Space                          ArrowRight                           Q
+                     Move right                       Move right         Space Jump to the right                          Move right                         Attack                     ?
+
+                                                                                                                                                                                      Enemy remains
+              Session starts; player                                             Player crosses the gap                                               Attack animation
+                                                Player advances                                                     Player stands close                                            unchanged; combat
+               observes enemy and                                                   and reaches the                                                  appears to contact
+                                              toward the first gap.                                                    to the enemy.                                               interaction appears
+                   goal ahead.                                                      middle platform.                                                     the enemy.
+                                                                                                                                                                                         broken.
+
+
+
+
+                                                             Fix List
+                                              Player attack succeed after pressing “Q” key
+                                                                                                                                           GUI Agent Summary
+                                              but the enemy has no response.                                                                Fine-grained step log
+                                              The enemy contact damage system might                                                         Observations
+                                              require verification for compatibility.
+
+
+
+      Figure 5: Example playtest trace produced by the GUI Agent. Per-step inputs and observations are distilled into a
+      Play Summary and an actionable Fix List (here flagging a broken attack interaction) that the Game Agent consumes
+      in the next revision round.
+
+      Table 3: Per-genre rubric scores on PlaytestArena across three generation methods instantiated with three backbones.
+      Each cell reports the rubric pass-rate (%). Cells shaded from dark to light mark the best, second-best, and
+      third-best score per row.
+
+                                               Direct LLM                                                     OpenGame                                            Play2Code (Ours)
+       Genre                     GPT-5.4       Sonnet 4.6             Kimi K2.5             GPT-5.4           Sonnet 4.6          Kimi K2.5          GPT-5.4              Sonnet 4.6    Kimi K2.5
+       Puzzle                          35.2          33.4               31.8                   60.5               59.7                    50.2          77.8                74.6             52.8
+       Strategy                        30.4          28.6               26.9                   54.3               55.1                    44.1          69.5                70.2             52.0
+       Card                            36.8          34.7               32.5                   61.2               60.6                    51.4          76.8                75.9             67.3
+       Action                          28.3          26.5               24.8                   51.7               51.2                    41.3          69.4                67.8             58.6
+       Platformer                      31.5          29.8               27.4                   55.6               55.1                    45.2          74.7                70.9             52.4
+       Management                      33.6          31.5               29.7                   58.4               57.9                    48.5          73.2                73.7             54.5
+       Shooter                         27.4          25.6               23.9                   50.8               50.3                    40.5          67.9                66.8             57.4
+       Other                           29.5          27.7               25.6                   53.2               52.6                    42.7          69.3                68.5             59.8
+       Avg.                            31.6          29.7               27.8                   55.7               55.3                    45.5          72.3                71.1             56.9
+
+
+
+423   as missing responses to player input, while later                                                       see markedly limited improvement: scores plateau                                           442
+424   rounds address finer-grained issues like visual ef-                                                     early and remain low in absolute terms across all                                          443
+425   fects. This round-wise improvement suggests that                                                        three code models. We attribute this to the GUI                                            444
+426   playtesting provides a usable optimization signal                                                       agent’s difficulty in producing informative feed-                                          445
+427   for code generation. In this sense, Play2Code turns                                                     back for complex gameplay logic. When the agent                                            446
+428   gameplay observations into an iterative refinement                                                      cannot reliably exercise intricate mechanics, the                                          447
+429   process.                                                                                                resulting traces provide little actionable signal for                                      448
+                                                                                                              the code model to act on. This suggests that the bot-                                      449
+
+430   Game difficulty modulates the effectiveness of                                                          tleneck on Hard games lies in GUI-agent capability                                         450
+
+431   GUI-driven refinement. Figure 6(a) also re-                                                             rather than in the refinement loop itself, pointing                                        451
+
+432   veals a clear dependence of Play2Code’s gains                                                           to stronger GUI agents as a direct lever for further                                       452
+
+433   on game complexity. On Easy games, the GUI                                                              gains.                                                                                     453
+
+434   agent surfaces nearly all latent defects within the
+                                                                                                              6      Can GUI Agents Stand in for Humans?                                                 454
+435   first few rounds, and scores approximately con-
+436   verge by rounds 3–5. Medium games benefit most                                                          The purpose of designing Play2Code is not to re-                                           455
+437   from the iterative loop, exhibiting steady, mono-                                                       place human playtesters with GUI agents. Hu-                                               456
+438   tonic improvement across all five rounds and the                                                        man playtesters remain irreplaceable for what they                                         457
+439   largest absolute gain end-to-end, indicating that the                                                   uniquely provide — a felt sense of difficulty, frus-                                       458
+440   GUI agent continues to uncover actionable issues                                                        tration, boredom, surprise, and the tacit aesthetic                                        459
+441   throughout refinement. In contrast, Hard games                                                          judgments that no agent currently approximates.                                            460
+
+
+                                                                                                          7
+                             (a)           Easy                    Medium                                           Hard                       (b)           GUI Agent vs. Human
+                             90
+
+
+                             80
+      Average Rubric Score
+
+
+
+
+                             70
+
+
+                             60
+
+
+                             50
+
+
+                             40
+
+
+                             30
+                                   1   2     3     4   5   1   2       3     4            5    1             2             3   4           5    1             2              3           4         5
+
+                                           Round                    Round                                            Round                                                 Round
+
+                                                                   GPT-5.4       Sonnet 4.6        Kimi K2.5           Human
+
+
+
+
+      Figure 6: Round-wise evolution of average rubric scores. (a) Games are partitioned into Easy, Medium, and Hard
+      tiers based on score trajectories under our Play2Code protocol. (b) GUI-agent vs. human-driven refinement on
+      Medium games. See §6.
+
+
+461   The question we ask here is therefore narrower:                                              GPT-5.4
+
+
+462   granted that GUI agents do not deliver everything                                            Sonnet 4.6
+
+463   a human playtester delivers, what do they deliver,
+                                                                                                   Kimi k2.5
+464   where do they go beyond what humans can, and
+465   where do they mirror how human playtesters them-                                                Functionality bugs       Game Feel            Difficulty & balance           Feedback cues
+                                                                                                      Control responsiveness   Pacing & flow        Visual & aesthetic             Accessibility
+466   selves differ?
+                                                                                              Figure 7: Distribution of feedback categories across
+467   GUI agents produce traceable feedback that hu-                                          playtested games for three backbones.
+468   mans cannot. A human playtester, even an atten-
+469   tive one, produces a report that is fundamentally
+470   a summary: they remember the salient moments,                                           of its feedback on functionality bugs and control re-                                                    499
+
+471   forget the rest, and reconstruct causal chains un-                                      sponsiveness, flagging broken mechanics, missing                                                         500
+
+472   der uncertainty. By the time the report reaches                                         state transitions, and unresponsive controls. Sonnet                                                     501
+
+473   the developer, the trace of what actually happened                                      4.6 spreads its attention more evenly, devoting a                                                        502
+
+474   in the session, every key press, every observation                                      comparable share to experiential issues such as pac-                                                     503
+
+475   that preceded a failure has been lost. But the GUI                                      ing, game feel, and difficulty balance. Kimi k2.5 is                                                     504
+
+476   agent’s feedback is structured differently. Every                                       the most striking outlier: nearly half its feedback                                                      505
+
+477   step the agent takes is logged: the action issued,                                      concerns visual and aesthetic dimensions, where                                                          506
+
+478   the observation it produced, and the diagnosis the                                      the others barely linger. We do not read this di-                                                        507
+
+479   agent associated with it (Figure 5). When the agent                                     vergence as a failure of consistency. It suggests                                                        508
+
+480   reports that "enemies remain stationary when they                                       that GUI agents, mechanical though at the level of                                                       509
+
+481   should patrol," the report is anchored in a spe-                                        execution, carry something like a taste at the level                                                     510
+
+482   cific sequence of observed frames, and the under-                                       of what they notice, and that taste, like a human                                                        511
+
+483   lying steps are recoverable. A developer, or in our                                     playtester’s, depends on who is doing the playing.                                                       512
+
+484   case, the game agent, can follow a reported failure
+485   back to the precise observations that produced it,                                      7       Related Work                                                                                     513
+
+486   rather than relying on the playtester’s reconstruc-
+                                                                                              7.1        Game Generation and Evaluation                                                                514
+487   tion. This traceability translates into measurable
+488   gains: on games well-suited to GUI play, the agent                                      Large language models (LLMs) have demonstrated                                                           515
+489   approaches human playtesters in driving refinement                                      strong capabilities in code generation (Zhu et al.,                                                      516
+490   (Figure 6(b)), suggesting that GUI-driven feedback                                      2024; Joel et al., 2024; Hui et al., 2024; Dong et al.,                                                  517
+491   is not merely a scalable substitute for human testing                                   2025), including synthesizing complete games (Hu                                                         518
+492   but holds the potential to exceed it.                                                   et al., 2024; Sweetser, 2024; Gallotta et al., 2024).                                                    519
+                                                                                              Existing evaluations often rely on functional cor-                                                       520
+493   Different agents notice different things. Differ-                                       rectness (Zheng et al., 2023; Zhang et al., 2025c,a),                                                    521
+494   ent GUI agents playing the same game produce                                            but such static signals cannot capture whether a                                                         522
+495   feedback with different emphases, much as differ-                                       game is playable, responsive, or faithful to its                                                         523
+496   ent human playtesters do. Figure 7 shows this di-                                       intended interaction design (Peng et al., 2026).                                                         524
+497   vergence across three backbones playtesting when                                        Since game quality is grounded in visual, real-time                                                      525
+498   generating games. GPT-5.4 concentrates the bulk                                         interaction, evaluating and improving games re-                                                          526
+
+
+                                                                                         8
+527   quires feedback derived from gameplay trajecto-              Zhong et al., 2024; Chhikara et al., 2025; Yu et al.,   577
+528   ries (Wen et al., 2025). Recent work such as Play-           2026). Recent work further shows that memory            578
+529   Coder (Peng et al., 2026) has shown the value of             can support reusable skills, helping agents avoid       579
+530   GUI-based behavioral testing for interactive appli-          previous failures and transfer successful strategies    580
+531   cation code, especially when execution or unit-test          to new tasks (Wang et al., 2023; Jiang et al., 2026a;   581
+532   signals miss runtime logic failures. We adopt the            Ma et al., 2026). Our setting connects these two        582
+533   same interaction-centered view in prompt-to-game             directions. Game improvement requires a coding          583
+534   generation, where a generated artifact must not              system and a GUI agent to co-evolve with a shared       584
+535   only run correctly, but also realize the intended            memory pool that stores interaction history and         585
+536   mechanics, controls, progression, and feedback               develops reusable skills, allowing each side’s ex-      586
+537   as experienced during play. In this setting, the             perience to accumulate across tasks and facilitate      587
+538   GUI agent serves as a playtester whose trajectory-           future tasks.                                           588
+539   grounded observations provide feedback for subse-
+540   quent game revisions.                                        8   Conclusions                                         589
+
+
+541   7.2   GUI Agents                                             We studied game generation under the constraint         590
+                                                                   that quality is not visible in code. We built           591
+542   GUI agents, typically built on top of vision-
+                                                                   PlaytestArena, where generated games are scored         592
+543   language models (VLMs), have demonstrated
+                                                                   by a GUI agent that loads each build in a browser,      593
+544   strong capabilities in visual understanding and ac-
+                                                                   plays it, and adjudicates per-game rubrics from         594
+545   tion planning (Hong et al., 2024; You et al., 2024;
+                                                                   what it observes. On top of this, we introduced         595
+546   Qin et al., 2025; Wang et al., 2025a; Huang et al.,
+                                                                   Play2Code, which places the GUI agent inside            596
+547   2026b). They can interpret screen-based observa-
+                                                                   the generation process: a code-generation agent         597
+548   tions and perform actions conditioned on the cur-
+                                                                   and a GUI playtester operate in a loop, with the        598
+549   rent state of the environment and task goals (Deng
+                                                                   playtester turning each build into structured feed-     599
+550   et al., 2023; Wu et al., 2024; Xie et al., 2024; Liu
+                                                                   back that drives the next round, and a shared mem-      600
+551   et al., 2024). Recent work shows that GUI agents
+                                                                   ory letting both agents accumulate skills and de-       601
+552   are increasingly effective at solving real-time visual
+                                                                   sign knowledge across games. Across three back-         602
+553   tasks (Deng et al., 2023; Xie et al., 2024; Nguyen
+                                                                   bones, Play2Code outperforms both single-shot           603
+554   et al., 2025). In settings such as game playing, they
+                                                                   and agentic-coding baselines on PlaytestArena, and      604
+555   exhibit strong abilities to interact with dynamic en-
+                                                                   rubric scores improve monotonically within each         605
+556   vironments with task goal (Ouyang et al., 2026;
+                                                                   refinement trajectory, evidence that playtesting pro-   606
+557   Plaat et al., 2024). These properties make GUI
+                                                                   vides not only a richer evaluation signal but a us-     607
+558   agents have the potential to serve as scalable prox-
+                                                                   able optimization signal for code generation. Treat-    608
+559   ies for human feedback when deployed in real-time
+                                                                   ing generation and play as a sustained interaction is   609
+560   environments and allowed to learn from interaction
+                                                                   a productive direction for building game generation     610
+561   experience.
+                                                                   systems that improve with use.                          611
+
+562   7.3   Memory-Augmented Agent Evolution
+                                                                   Limitations                                             612
+563   Agent evolution has been studied as a way to en-
+564   able continual improvement through iterative feed-           We note several limitations of this work. First,        613
+565   back loops, including execution, tool, and multi-            PlaytestArena is restricted to HTML-based games,        614
+566   agent interaction feedback (Tao et al., 2024; Gao            which favors reproducibility but excludes 3D,           615
+567   et al., 2025; Wang et al., 2025c; Zhang et al., 2025b;       physics-heavy, or asset-intensive titles; results       616
+568   Ma et al., 2024; Wang et al., 2025b; Huang et al.,           may not transfer directly to native-engine settings.    617
+569   2026a). However, many existing approaches fo-                Second, the GUI Playtester operates purely from         618
+570   cus on text-based or static settings, instead of in-         screenshots, mirroring a human tester but limit-        619
+571   teractive environments (Dong et al., 2026; Wang              ing its ability to surface bugs that are only visible   620
+572   et al., 2023). In parallel, agent memory has                 through internal game state. Third, the co-evolution    621
+573   been used to retain past interaction histories, user         loop is substantially more expensive than one-shot      622
+574   preferences, and task-specific knowledge, allow-             generation, and we have not explored adaptive           623
+575   ing agents to reuse prior experience across long-            scheduling that invokes the GUI Playtester only         624
+576   horizon tasks (Park et al., 2023; Shinn et al., 2023;        when its feedback is likely to be informative. Fi-      625
+
+
+                                                               9
+626   nally, our evaluation is anchored on frontier VLMs             Chengpeng Hu, Yunlong Zhao, and Jialin Liu. 2024.           679
+627   and a hand-designed memory schema; behavior                      Game generation via large language models. In 2024        680
+                                                                       IEEE Conference on Games (CoG), pages 1–4. IEEE.          681
+628   under weaker backbones or learned memory struc-
+629   tures is left to future work.                                  Yixu Huang, Xinglei Yu, and Zhongyu Wei. 2026a. Ace:        682
+                                                                       Self-evolving llm coding framework via adversar-          683
+                                                                       ial unit test generation and preference optimization.     684
+630   References                                                       arXiv preprint arXiv:2605.16299.                          685
+
+631   Anthropic. 2026. Claude sonnet 4.6. Large language
+                                                                     Yixu Huang, Tinghui Zhu, and Muhao Chen. 2026b.             686
+632     model. Accessed: 2026-05-22.
+                                                                       Learning adaptive reasoning paths for efficient visual    687
+633   Rahul K Arora, Jason Wei, Rebecca Soskin Hicks, Pre-             reasoning. arXiv preprint arXiv:2604.14568.               688
+634     ston Bowman, Joaquin Quiñonero-Candela, Foivos
+635     Tsimpourlas, Michael Sharman, Meghan Shah, An-               Binyuan Hui, Jian Yang, Zeyu Cui, Jiaxi Yang,               689
+636     drea Vallone, Alex Beutel, and 1 others. 2025.                 Dayiheng Liu, Lei Zhang, Tianyu Liu, Jiajun               690
+637     Healthbench: Evaluating large language models                  Zhang, Bowen Yu, Keming Lu, and 1 others. 2024.           691
+638     towards improved human health. arXiv preprint                  Qwen2. 5-coder technical report. arXiv preprint           692
+639     arXiv:2505.08775.                                              arXiv:2409.12186.                                         693
+
+640   Martin Balla, George EM Long, James Goodman,                   itch.io. 2026. itch.io – download the latest indie games.   694
+641    Raluca D Gaina, and Diego Perez-Liebana. 2024.
+642    Pytag: Tabletop games for multiagent reinforcement            Guanyu Jiang, Zhaochen Su, Xiaoye Qu, and Yi R              695
+643    learning. IEEE Transactions on Games, 16(4):993–                Fung. 2026a. Xskill: Continual learning from experi-      696
+644    1002.                                                           ence and skills in multimodal agents. arXiv preprint      697
+                                                                       arXiv:2603.12056.                                         698
+645   Prateek Chhikara, Dev Khant, Saket Aryan, Taranjeet
+646     Singh, and Deshraj Yadav. 2025. Mem0: Building               Yilei Jiang, Jinyuan Hu, Qianyin Xiao, Yaozhi Zheng,        699
+647     production-ready ai agents with scalable long-term             Ruize Ma, Kaituo Feng, Jiaming Han, Tianshuo Peng,        700
+648     memory. arXiv preprint arXiv:2504.19413.                       Kaixuan Fan, Manyuan Zhang, and 1 others. 2026b.          701
+649   Xiang Deng, Yu Gu, Boyuan Zheng, Shijie Chen, Sam                Opengame: Open agentic coding for games. arXiv            702
+650     Stevens, Boshi Wang, Huan Sun, and Yu Su. 2023.                preprint arXiv:2604.18394.                                703
+651     Mind2web: Towards a generalist agent for the web.
+652     Advances in Neural Information Processing Systems,           Sathvik Joel, Jie Wu, and Fatemeh Fard. 2024. A sur-        704
+653     36:28091–28114.                                                vey on llm-based code generation for low-resource         705
+                                                                       and domain-specific programming languages. ACM            706
+654   Yihong Dong, Xue Jiang, Jiaru Qian, Tian Wang, Kechi             Transactions on Software Engineering and Method-          707
+655     Zhang, Zhi Jin, and Ge Li. 2025. A survey on code              ology.                                                    708
+656     generation with llm-based agents. arXiv preprint
+657     arXiv:2508.00083.                                            Bo Li, Yida Yin, Wenhao Chai, Xingyu Fu, and Zhuang         709
+                                                                       Liu. 2026. Ueval: A benchmark for unified multi-          710
+658   Zihan Dong, Zirou Liu, Zekun Wang, Yunqing Li, and               modal generation. arXiv preprint arXiv:2601.22155.        711
+659     Zhiyuan Ma. 2026. The evaluation challenge of
+660     agency: Reliability, contamination, and evolution            Xiao Liu, Bo Qin, Dongzhu Liang, Guang Dong, Hanyu          712
+661     in llm agents.                                                 Lai, Hanchen Zhang, Hanlin Zhao, Iat Long Iong,           713
+                                                                       Jiadai Sun, Jiaqi Wang, and 1 others. 2024. Auto-         714
+662   Roberto Gallotta, Graham Todd, Marvin Zammit, Sam                glm: Autonomous foundation agents for guis. arXiv         715
+663     Earle, Antonios Liapis, Julian Togelius, and Geor-             preprint arXiv:2411.00820.                                716
+664     gios N Yannakakis. 2024. Large language models
+665     and games: A survey and roadmap. IEEE Transac-
+                                                                     Hao Ma, Tianyi Hu, Zhiqiang Pu, Boyin Liu, Xiaolin          717
+666     tions on Games.
+                                                                       Ai, Yanyan Liang, and Min Chen. 2024. Coevolving          718
+667   Huan-ang Gao, Jiayi Geng, Wenyue Hua, Mengkang Hu,               with the other you: Fine-tuning llm with sequential       719
+668     Xinzhe Juan, Hongzhang Liu, Shilong Liu, Jiahao                cooperative multi-agent reinforcement learning. Ad-       720
+669     Qiu, Xuan Qi, Yiran Wu, and 1 others. 2025. A                  vances in Neural Information Processing Systems,          721
+670     survey of self-evolving agents: On path to artificial          37:15497–15525.                                           722
+671     super intelligence. arXiv preprint arXiv:2507.21046,
+672     1.                                                           Ziyu Ma, Shidong Yang, Yuxiang Ji, Xucong Wang,             723
+                                                                       Yong Wang, Yiming Hu, Tongwen Huang, and Xi-              724
+673   Wenyi Hong, Weihan Wang, Qingsong Lv, Jiazheng                   angxiang Chu. 2026. Skillclaw: Let skills evolve          725
+674    Xu, Wenmeng Yu, Junhui Ji, Yan Wang, Zihan Wang,                collectively with agentic evolver. arXiv preprint         726
+675    Yuxiao Dong, Ming Ding, and 1 others. 2024. Coga-               arXiv:2604.08377.                                         727
+676    gent: A visual language model for gui agents. In Pro-
+677    ceedings of the IEEE/CVF conference on computer               Moonshot AI. 2026. Kimi K2.5: Visual agentic intelli-       728
+678    vision and pattern recognition, pages 14281–14290.             gence. Accessed: 2026-05-22.                               729
+
+
+                                                                10
+730   Enhong Mu, Jinyu Cai, Yijun Lu, Mingyue Zhang,                  Penny Sweetser. 2024. Large language models and          784
+731     Kenji Tei, and Jialong Li. 2026. Knowledge graph-               video games: A preliminary scoping review. In Pro-     785
+732     enhanced large language model for incremental game              ceedings of the 6th ACM Conference on Conversa-        786
+733     playtesting. IEICE Transactions on Information and              tional User Interfaces, pages 1–8.                     787
+734     Systems, page 2025KBP0004.
+                                                                      Zhengwei Tao, Ting-En Lin, Xiancai Chen, Hangyu          788
+735   Dang Nguyen, Jian Chen, Yu Wang, Gang Wu, Namy-                   Li, Yuchuan Wu, Yongbin Li, Zhi Jin, Fei Huang,        789
+736     ong Park, Zhengmian Hu, Hanjia Lyu, Junda Wu,                   Dacheng Tao, and Jingren Zhou. 2024. A survey          790
+737     Ryan Aponte, Yu Xia, and 1 others. 2025. Gui agents:            on self-evolution of large language models. arXiv      791
+738     A survey. In Findings of the Association for Compu-             preprint arXiv:2404.14387.                             792
+739     tational Linguistics: ACL 2025, pages 22522–22538.
+                                                                      Guanzhi Wang, Yuqi Xie, Yunfan Jiang, Ajay Man-          793
+740   OpenAI. 2025. Introducing GPT-5. Blog post, August                dlekar, Chaowei Xiao, Yuke Zhu, Linxi Fan, and         794
+741     7, 2025.                                                        Anima Anandkumar. 2023. Voyager: An open-ended         795
+                                                                        embodied agent with large language models. arXiv       796
+742   Mingyu Ouyang, Siyuan Hu, Kevin Qinghong Lin,                     preprint arXiv:2305.16291.                             797
+743     Hwee Tou Ng, and Mike Zheng Shou. 2026. Game-
+744     world: Towards standardized and verifiable evalu-             Haoming Wang, Haoyang Zou, Huatong Song, Jiazhan         798
+745     ation of multimodal game agents. arXiv preprint                 Feng, Junjie Fang, Junting Lu, Longxiang Liu, Qinyu    799
+746     arXiv:2604.07429.                                               Luo, Shihao Liang, Shijue Huang, and 1 others.         800
+                                                                        2025a. Ui-tars-2 technical report: Advancing gui       801
+747   Joon Sung Park, Joseph O’Brien, Carrie Jun Cai, Mered-            agent with multi-turn reinforcement learning. arXiv    802
+748     ith Ringel Morris, Percy Liang, and Michael S Bern-             preprint arXiv:2509.02544.                             803
+749     stein. 2023. Generative agents: Interactive simulacra
+750     of human behavior. In Proceedings of the 36th an-             Shuai Wang, Weiwen Liu, Jingxuan Chen, Yuqi Zhou,        804
+751     nual acm symposium on user interface software and               Weinan Gan, Xingshan Zeng, Yuhan Che, Shuai Yu,        805
+752     technology, pages 1–22.                                         Xinlong Hao, Kun Shao, and 1 others. 2024. Gui         806
+                                                                        agents with foundation models: A comprehensive         807
+753   Zhiyuan Peng, Wei Tao, Xin Yin, Chenhao Ying, Yuan
+                                                                        survey. arXiv preprint arXiv:2411.04890.               808
+754     Luo, and Yiwen Guo. 2026. Playcoder: Making
+755     llm-generated gui code playable. arXiv preprint               Yinjie Wang, Ling Yang, Ye Tian, Ke Shen, and Mengdi     809
+756     arXiv:2604.19742.                                               Wang. 2025b. Co-evolving llm coder and unit            810
+                                                                        tester via reinforcement learning. arXiv preprint      811
+757   Aske Plaat, Annie Wong, Suzan Verberne, Joost
+                                                                        arXiv:2506.03136.                                      812
+758     Broekens, Niki Van Stein, and Thomas Back. 2024.
+759     Reasoning with large language models, a survey.
+                                                                      Zhenhailong Wang, Haiyang Xu, Junyang Wang,              813
+760     arXiv preprint arXiv:2407.11511, 1(2):3.
+                                                                        Xi Zhang, Ming Yan, Ji Zhang, Fei Huang, and           814
+761   Poki. 2026. Poki – free online games.                             Heng Ji. 2025c. Mobile-agent-e: Self-evolving mo-      815
+                                                                        bile assistant for complex tasks. arXiv preprint       816
+762   Yujia Qin, Yining Ye, Junjie Fang, Haoming Wang,                  arXiv:2501.11733.                                      817
+763     Shihao Liang, Shizuo Tian, Junda Zhang, Jiahao Li,
+764     Yunxin Li, Shijue Huang, and 1 others. 2025. Ui-              Yule Wen, Yixin Ye, Yanzhe Zhang, Diyi Yang, and Hao     818
+765     tars: Pioneering automated gui interaction with native          Zhu. 2025. Real-time reasoning agents in evolving      819
+766     agents. arXiv preprint arXiv:2501.12326.                        environments. arXiv preprint arXiv:2511.04898.         820
+
+767   Zhang Ran, Kun Ouyang, Tiancheng Ma, Yida Yang,                 Wikipedia contributors. 2026. Video game genres.         821
+768     and Dong Fang. 2026. Beyond playtesting: A gen-
+769     erative multi-agent simulation system for massively           Zhiyong Wu, Chengcheng Han, Zichen Ding, Zhenmin         822
+770     multiplayer online games. In Proceedings of the                 Weng, Zhoumianze Liu, Shunyu Yao, Tao Yu, and          823
+771     ACM Web Conference 2026, pages 8525–8528.                       Lingpeng Kong. 2024. Os-copilot: Towards gener-        824
+                                                                        alist computer agents with self-improvement. arXiv     825
+772   Yuchul Shin, Jaewon Kim, Kyohoon Jin, and Young Bin               preprint arXiv:2402.07456.                             826
+773     Kim. 2020. Playtesting in match 3 game using strate-
+774     gic plays via reinforcement learning. IEEE Access,            Tianbao Xie, Danyang Zhang, Jixuan Chen, Xiaochuan       827
+775     8:51593–51600.                                                   Li, Siheng Zhao, Ruisheng Cao, Toh J Hua, Zhoujun     828
+                                                                         Cheng, Dongchan Shin, Fangyu Lei, and 1 others.       829
+776   Noah Shinn, Federico Cassano, Ashwin Gopinath,                     2024. Osworld: Benchmarking multimodal agents         830
+777     Karthik Narasimhan, and Shunyu Yao. 2023. Re-                    for open-ended tasks in real computer environments.   831
+778     flexion: Language agents with verbal reinforcement              Advances in Neural Information Processing Systems,     832
+779     learning. Advances in neural information processing              37:52040–52094.                                       833
+780     systems, 36:8634–8652.
+                                                                      Aashish Yadavally, Hoan Nguyen, Laurent Callot, and      834
+781   Swadesh Sistla and Max Kleiman-Weiner. 2026. Evalu-               Gauthier Guinet. 2025. Large language model critics    835
+782     ating llms in open-source games. Advances in Neural             for execution-free evaluation of code changes. arXiv   836
+783     Information Processing Systems, 38:104032–104063.               preprint arXiv:2501.16655.                             837
+
+
+                                                                 11
+838   Keen You, Haotian Zhang, Eldon Schoop, Floris Weers,
+839     Amanda Swearngin, Jeffrey Nichols, Yinfei Yang,
+840     and Zhe Gan. 2024. Ferret-ui: Grounded mobile
+841     ui understanding with multimodal llms. In Euro-
+842     pean Conference on Computer Vision, pages 240–
+843     255. Springer.
+844   Yi Yu, Liuyi Yao, Yuexiang Xie, Qingquan Tan, Ji-
+845     aqi Feng, Yaliang Li, and Libing Wu. 2026. Agen-
+846     tic memory: Learning unified long-term and short-
+847     term memory management for large language model
+848     agents. arXiv preprint arXiv:2601.01885.
+849   Chenchen Zhang, Yuhang Li, Can Xu, Jiaheng Liu,
+850     Ao Liu, Changzhi Zhou, Ken Deng, Dengpeng Wu,
+851     Guanhua Huang, Kejiao Li, and 1 others. 2025a.
+852     Artifactsbench: Bridging the visual-interactive gap
+853     in llm code generation evaluation. arXiv preprint
+854     arXiv:2507.04952.
+855   Ding-Chu Zhang, Yida Zhao, Jialong Wu, Liwen Zhang,
+856     Baixuan Li, Wenbiao Yin, Yong Jiang, Yu-Feng
+857     Li, Kewei Tu, Pengjun Xie, and 1 others. 2025b.
+858     Evolvesearch: An iterative self-evolving search agent.
+859     In Proceedings of the 2025 Conference on Empiri-
+860     cal Methods in Natural Language Processing, pages
+861     13134–13147.
+862   Wei Zhang, Jack Yang, Renshuai Tao, Lingzheng Chai,
+863     Shawn Guo, Jiajun Wu, Xiaoming Chen, Ganqu Cui,
+864     Ning Ding, Xander Xu, and 1 others. 2025c. V-
+865     gamegym: Visual game generation for code large
+866     language models. arXiv preprint arXiv:2509.20136.
+867   Wenyu Zhang, Guoliang You, Haotian Zhao, Tian-
+868    shu Zhu, Haoran Wang, Xiaoxuan Tang, Mingyang
+869    Dai, Jingnan Gu, Daxiang Dong, Jianmin Wu, and
+870    1 others. 2026. Webgamebench: Requirement-to-
+871    application evaluation for coding agents via browser-
+872    native games. arXiv preprint arXiv:2605.17637.
+873   Qinkai Zheng, Xiao Xia, Xu Zou, Yuxiao Dong, Shan
+874     Wang, Yufei Xue, Lei Shen, Zihan Wang, Andi Wang,
+875     Yang Li, and 1 others. 2023. Codegeex: A pre-trained
+876     model for code generation with multilingual bench-
+877     marking on humaneval-x. In Proceedings of the 29th
+878     ACM SIGKDD conference on knowledge discovery
+879     and data mining, pages 5673–5684.
+880   Wanjun Zhong, Lianghong Guo, Qiqi Gao, He Ye, and
+881    Yanlin Wang. 2024. Memorybank: Enhancing large
+882     language models with long-term memory. In Pro-
+883     ceedings of the AAAI conference on artificial intelli-
+884     gence, volume 38, pages 19724–19731.
+885   Qihao Zhu, Daya Guo, Zhihong Shao, Dejian Yang,
+886     Peiyi Wang, Runxin Xu, Y Wu, Yukun Li, Huazuo
+887     Gao, Shirong Ma, and 1 others. 2024. Deepseek-
+888     coder-v2: Breaking the barrier of closed-source
+889     models in code intelligence.     arXiv preprint
+890     arXiv:2406.11931.
+
+
+
+
+                                                                 12
+891   Appendix                                                    A.3   Prompt Construction Protocol                      937
+
+892   A     PlaytestArena Construction Details                    Each topic is assigned to one of the five experts       938
+                                                                  as primary author. The expert writes a generation       939
+893   This section documents the human-expert work-               prompt that specifies, at minimum:                      940
+894   force behind PlaytestArena, summarized in §3, in-
+895   cluding recruitment, qualifications, the annotation            • the stateful gameplay loop;                        941
+896   protocol for prompts and rubrics, and quality con-
+897   trol.                                                          • win and loss conditions;                           942
+
+
+898   A.1    Expert Recruitment and Qualifications                   • the set of valid player inputs (keys, mouse        943
+
+899   We recruit five human experts to author the 200                  actions);                                          944
+
+900   generation prompts and the paired rubrics. Experts
+                                                                     • expected feedback behavior on input (visual,       945
+901   were recruited from a pool of graduate students
+                                                                       auditory, or state-change cues);                   946
+902   and recent graduates in computer science, human–
+903   computer interaction, and game design at our in-               • any progression structure (levels, waves,          947
+904   stitution. To qualify, each expert was required to               rounds).                                           948
+905   meet at least two of the following three criteria:
+                                                                     Each prompt is then reviewed by a second expert      949
+906       • self-reported ≥10 hours per week of digital           who flags ambiguity, missing constraints, or non-       950
+907         game play over the past year;                         self-contained references (e.g., "make it feel like     951
+
+908       • prior coursework in game design, HCI, or in-          [existing game]" without further detail). Prompts       952
+
+909         teractive systems;                                    flagged in this second pass are revised by the pri-     953
+                                                                  mary author or removed. The final 200 prompts           954
+910       • prior experience implementing a playable              are the result of an initial pool of 247 candidate      955
+911         game (course project, game jam entry, or              prompts, of which 47 were discarded.                    956
+912         hobby project) in any engine or framework.
+                                                                  A.4   Rubric Construction Protocol                      957
+913      The final five experts comprise three gradu-             Once a prompt is finalized, the same primary ex-        958
+914   ate students and two recent graduates; three have           pert drafts a paired rubric. Each rubric criterion is   959
+915   shipped at least one playable game prototype, and           written to state a single expected in-play behavior     960
+916   all five report regular play across multiple genres.        in concrete, observable terms (e.g., “the game loads    961
+917   None of the experts are authors of this paper, and          and renders without errors”, “the spawned enemies       962
+918   none participated in the GUI judge validation study         move toward the player’s position”). The expert         963
+919   (Appendix B), ensuring those two annotation ef-             is instructed to cover five dimensions: mechanics,      964
+920   forts are independent. Experts are compensated at           controls, progression, interface, and visual feed-      965
+921   $XX/hour.                                                   back, with a target of 6–10 criteria per game. The      966
+
+922   A.2    Genre and Topic Coverage                             final rubric corpus contains 1,548 criteria across      967
+                                                                  the 200 games, with a mean of 7.7 criteria per game     968
+923   The 200 game topics are distributed across the              (min 5, max 11).                                        969
+924   eight genres reported in Figure 3. Within each                 Each rubric is then reviewed by a second expert      970
+925   genre, topics are seeded from two sources: (i) rep-         against three checks:                                   971
+926   resentative subgenres listed in Wikipedia contribu-
+927   tors (2026), and (ii) titles browsable on the public           • Concreteness: every criterion describes a sin-     972
+928   web-game platforms itch.io and Poki (itch.io, 2026;              gle observable behavior, not a quality judg-       973
+929   Poki, 2026). We use these sources only to enu-                   ment (e.g., “the spawn rate increases each         974
+930   merate genre conventions and topic archetypes; no                wave” is accepted; “the difficulty curve feels     975
+931   game code, asset, or rubric is copied from existing              right” is not);                                    976
+932   titles. Topics are reviewed by the lead authors be-
+933   fore being assigned to experts to remove duplicates            • Observability: every criterion can in princi-      977
+934   and ensure each topic is implementable as a self-                ple be adjudicated by a tester who only sees       978
+935   contained HTML/CSS/JS bundle within a single                     the rendered game, without access to source        979
+936   generation pass by a frontier model.                             code or internal state;                            980
+
+
+                                                             13
+981        • Faithfulness: every criterion follows from the                      B.1   Sample Construction                               1014
+982          paired prompt and is not introduced from the
+                                                                                 We sample 32 generated games from PlaytestArena         1015
+ 983         expert’s personal preferences.
+                                                                                 using stratified sampling along two axes:               1016
+
+984       Items failing any check are revised or removed.                           • Genre: 4 games per genre across the                1017
+985    A final pass by one of the lead authors verifies                               eight genres in PlaytestArena (Puzzle, Strat-      1018
+986    all 200 prompt–rubric pairs against the same three                             egy, Card, Action, Platformer, Management,         1019
+ 987   checks.                                                                        Shooter, Other), ensuring each genre is            1020
+                                                                                      equally represented.                               1021
+988    A.5 Calibration and Inter-Expert Consistency
+989    Before authoring the main set, all five experts com-                         • Generation method and quality: Within              1022
+
+990    plete a calibration round on three shared topics                               each genre, we sample games produced by            1023
+
+991    (one puzzle, one strategy, one platformer). Each                               the three methods compared in §5 (Direct           1024
+
+992    expert independently writes a prompt and rubric                                LLM, OpenGame, Play2Code). This prevents           1025
+
+993    for these three topics; the five drafts are then re-                           the agreement statistics from being inflated       1026
+
+994    viewed jointly, and disagreements on what counts                               by sampling only easy cases (e.g., uniformly       1027
+
+995    as a concrete, observable criterion are resolved in                            high- or uniformly low-scoring builds).            1028
+
+996    discussion. The calibration prompts and rubrics are
+997    discarded and are not part of the released bench-                           The 32 games yield 375 rubric criteria in total,      1029
+
+998    mark.                                                                     with a mean of 11.7 criteria per game (min 9, max       1030
+                                                                                 15).                                                    1031
+999       As a post-hoc check on consistency, we have
+1000   each expert re-review a random 10% sample of
+                                                                                 B.2   Annotator Protocol                                1032
+1001   criteria authored by their peers and mark each as
+1002   ACCEPT or REVISE. The acceptance rate is 95.3%,                           Recruitment. We recruit three annotators in com-        1033
+1003   with the most common reason for REVISE flags                              puter science with prior game-playing experience        1034
+1004   being a criterion that is concrete but underspecified                     (self-reported ≥5 hours per week of digital game        1035
+1005   (e.g., omitting which input triggers a behavior).                         play). None of the annotators are authors of this       1036
+1006   Flagged criteria were revised before benchmark                            paper or were involved in PlaytestArena’s construc-     1037
+1007   release.                                                                  tion.                                                   1038
+
+                                                                                 Blinding. Each annotator is blind to (i) which          1039
+1008   B       GUI Judge Validation: Full Setup and
+                                                                                 generation method produced each game, (ii) the          1040
+1009           Analysis
+                                                                                 GUI judge’s per-criterion verdicts, and (iii) the GUI   1041
+
+1010   This appendix documents the validation study sum-                         judge’s play trace.                                     1042
+
+1011   marized in §2. We describe the sampling procedure,
+                                                                                 Task. For each game, annotators receive the gen-        1043
+1012   annotator protocol, full per-pair agreement break-
+                                                                                 eration prompt and the full rubric, play the build      1044
+1013   downs, and disagreement case studies.
+                                                                                 in a browser under a 10-minute time budget match-       1045
+                                                                                 ing the GUI agent’s session length, then adjudicate     1046
+        Pair        Raw Agr. (%)   Cohen’s κ   Spearman’s ρ   Pearson’s r
+        GUI vs. Human
+                                                                                 each rubric criterion as PASS or FAIL. We disallow      1047
+         GUI – h1
+         GUI – h2
+                          85.6
+                          84.1
+                                     0.70
+                                     0.62
+                                                   0.86
+                                                   0.89
+                                                                 0.88
+                                                                 0.87
+                                                                                 an UNCLEAR option to keep the label space aligned       1048
+         GUI – h3         82.9       0.60          0.86          0.89            with the GUI judge, which is also forced into a         1049
+         Average          84.2       0.64          0.87          0.88
+        Human vs. Human
+                                                                                 binary verdict.                                         1050
+          h1 – h2         91.6       0.67          0.93          0.88
+          h1 – h3         89.8       0.64          0.89          0.93
+          h2 – h3         90.7       0.67          0.91          0.94
+                                                                                 Quality control. Before the main study, each            1051
+          Average         85.7       0.66          0.91          0.91            annotator completes a calibration round on 3 games      1052
+                                                                                 not included in the main sample, with feedback          1053
+       Table 4: Per-pair agreement between the GUI judge
+       and human annotators, and among human annotators.                         on borderline cases to align their interpretation of    1054
+
+       GUI–human agreement is comparable to human–human                          rubric items. The calibration data is discarded.        1055
+       agreement across raw agreement, Cohen’s κ, Spearman
+       rank correlation, and Pearson correlation.                                B.3   Agreement Metrics                                 1056
+
+                                                                                 We report metrics along two axes:                       1057
+
+
+                                                                            14
+1058       1. Per-criterion agreement. For each pair of               game compiles cleanly and hangs normally—i.e.,            1105
+1059          judges (one GUI–human pair or one human–                it enters a stable running state without crashing or      1106
+1060          human pair), we compute (a) raw agreement               exiting—or when the maximum of five inspection            1107
+1061          as the percentage of rubric criteria on which           rounds is reached. We do not modify this stopping         1108
+1062          the two judges return the same verdict, and (b)         criterion to keep the baseline faithful to its original   1109
+1063          Cohen’s κ, which corrects for chance agree-             design.                                                   1110
+1064          ment under the marginal pass-rates of each
+                                                                      Play2Code. We set the maximum number of                   1111
+1065          judge. We then average over the three GUI–
+                                                                      evolving rounds to Rmax =5, matching OpenGame             1112
+1066          human pairs and, separately, over the three
+                                                                      for fairness. However, the loop is not required to        1113
+1067          human–human pairs.
+                                                                      run for all five rounds: at the end of each play-and-     1114
+1068       2. Per-game ranking consistency. For each                  report step, the GUI Agent decides whether the cur-       1115
+1069          GUI–human or human–human pair, we score                 rent build already meets the intent of the generation     1116
+1070          every game by the fraction of rubric criteria           prompt. Concretely, the GUI Agent is prompted to          1117
+1071          each judge marks PASS, then compute Spear-              emit an explicit Run Outcome field with values in         1118
+1072          man’s ρ between the two resulting rankings              {completed, reached-ending, blocked-by-bug,               1119
+1073          of the 32 games. We also report Pearson’s r             could-not-start}, together with a confidence              1120
+1074          on the same scores as a robustness check; the           level. When the GUI Agent reports completed or            1121
+1075          two metrics give consistent conclusions.                reached-ending with high confidence, the loop             1122
+                                                                      terminates early and the current build is taken as the    1123
+1076   B.4     Results                                                final artifact; otherwise, the loop continues until       1124
+
+1077   Per-pair breakdown. Table 4 reports the four                   Rmax is reached. Across the 200 tasks, the av-            1125
+
+1078   metrics for each of the six pairs individually. The            erage effective round count is 3.24 (median 3.05,         1126
+
+1079   GUI judge’s agreement with each individual hu-                 std 0.72), with 93.5% of tasks terminating before         1127
+
+1080   man is comparable to the agreement between any                 Rmax .                                                    1128
+
+1081   two humans, with no human annotator showing
+                                                                      D     Play2Code System Design Detail                      1129
+1082   a substantially closer or more distant relationship
+1083   to the GUI judge than to their peers. This argues              This section documents the concrete instantiation         1130
+1084   against the concern that the GUI judge might be                of the Game Agent and the GUI Agent introduced            1131
+1085   tracking the idiosyncrasies of any single annota-              in §4. The two agents share a runtime and a mem-          1132
+1086   tor’s calibration.                                             ory system, but operate over disjoint observation         1133
+                                                                      spaces and tool inventories, reflecting their respec-     1134
+1087   Aggregate agreement. Table 2 in the main text
+                                                                      tive roles as developer and playtester.                   1135
+1088   summarizes the agreement averaged within each
+1089   pair type, reproducing the headline numbers from               D.1    Game Agent                                         1136
+1090   §3 and adding Pearson’s r as a robustness check.
+                                                                      The Game Agent is responsible for translating the         1137
+
+1091   C     Experimental Details                                     generation prompt into a runnable HTML-based              1138
+                                                                      game artifact and for revising that artifact between      1139
+1092   All three methods compared in Table ?? (Direct                 rounds based on the GUI Agent’s report. It oper-          1140
+1093   LLM, OpenGame, and Play2Code) are run on the                   ates in a code-first mode, working autonomously           1141
+1094   same set of 200 PlaytestArena tasks, but their ef-             through a fixed multi-phase workflow rather than          1142
+1095   fective budgets differ in structure rather than in raw         producing the game in a single shot.                      1143
+1096   model calls.
+                                                                      Inputs. At the start of each round, the Game              1144
+1097   Direct LLM. The model emits the entire game in                 Agent receives: (i) the original generation prompt,       1145
+1098   a single pass from the generation prompt, with no              (ii) the current state of the codebase (or an empty       1146
+1099   runtime inspection and no opportunity for revision.            scaffold in the first round), (iii) the GUI Agent’s       1147
+1100   Each task therefore consists of exactly one round.             play summary and actionable fix list from the previ-      1148
+                                                                      ous round (rounds ≥ 2 only), and (iv) the relevant        1149
+1101   OpenGame. We follow the released configura-
+                                                                      slices of the shared memory system (§D.3).                1150
+1102   tion of Jiang et al. (2026b), which iteratively builds,
+1103   runs, and inspects the game at the syntactic and               Workflow. In the first round, the Game Agent              1151
+1104   compilation level. The loop terminates once the                proceeds through five phases after receiving the          1152
+
+
+                                                                 15
+1153   user prompt: game design, asset generation, code            mechanics, and success conditions; (iii) a fixed       1199
+1154   implementation, build-time verification, and mem-           system prompt defining its role as a playtester, its   1200
+1155   ory capture. In subsequent rounds, once the GUI             interaction conventions, and its stopping criteria;    1201
+1156   Agent provides a play summary and actionable fix            and (iv) the relevant GUI-side skill memory and        1202
+1157   list, the Game Agent skips the game design and              shared world memory (§D.3).                            1203
+1158   asset generation phases by default. Instead, it re-
+                                                                   Workflow. The GUI Agent proceeds through five          1204
+1159   views the GUI feedback, decides which suggested
+                                                                   phases: initial observation, game start, interactive   1205
+1160   fixes are relevant and feasible, and resumes from
+                                                                   playtesting, assessment, and memory capture. Like      1206
+1161   code implementation, followed by build-time veri-
+                                                                   the Game Agent, it follows an explicit step-wise       1207
+1162   fication and memory capture.
+                                                                   workflow rather than producing a judgment from a       1208
+
+1163     1. Game design. A specifc game design docu-               single screenshot.                                     1209
+
+1164        ment is generated from the user requirement,
+                                                                     1. Initial observation. The agent observes the       1210
+1165        according to . This phase also includes game
+                                                                        rendered game screen and uses short waits         1211
+1166        guide (GAME_GUIDE.md) generation, which is
+                                                                        when necessary to distinguish loading screens     1212
+1167        later consumed by the GUI Agent. (§D.2).
+                                                                        from frozen or unresponsive builds.               1213
+1168     2. Asset generation. Sprites, tilemaps, and au-
+                                                                     2. Game start. The agent starts the game by          1214
+1169        dio are generated according to game deisign.
+                                                                        clicking a visible start affordance, pressing     1215
+1170     3. Code implementation. The agent imple-                       the instructed key, or proceeding directly if     1216
+1171        ments scenes, entities and game logics accord-              the game auto-starts.                             1217
+1172        ing game design document.
+                                                                     3. Interactive playtesting. The agent plays to-      1218
+1173     4. Verification. The agent runs npm run build                  ward the stated objective using only mouse        1219
+1174        and a headless test pass, fixing any TypeScript             and keyboard actions. It verifies the game        1220
+1175        or runtime errors before handing the build to               guide through interaction rather than assum-      1221
+1176        the GUI Agent.                                              ing it is correct. For movement-heavy games,      1222
+                                                                        it holds keys long enough to produce visi-        1223
+1177     5. Memory capture. On completion, the agent                    ble displacement and combines keys when           1224
+1178        writes any non-obvious fix patterns, pitfalls,              chorded actions such as run-and-jump are re-      1225
+1179        or design decisions to skill or world memory                quired. The agent does not stop at the first      1226
+1180        for use in subsequent tasks.                                failure state; for platformer-style games, it     1227
+                                                                        must attempt at least two materially different    1228
+1181   Tools. The Game Agent has access to                              retries before declaring the level blocked.       1229
+1182   file-system tools (read_file, write_file,
+1183   run_shell_command), project-specific code                     4. Assessment. The agent summarizes whether          1230
+1184   generation     tools   (generate_game_guide,                     the run was completed, reached an ending,         1231
+1185   generate-game-assets, and the memory                             blocked by a bug, or could not start. It evalu-   1232
+1186   interface (memory_query, memory_save).                           ates the start flow, controls, core mechanics,    1233
+                                                                        progression, and ending, and records severity-    1234
+1187   D.2   GUI Agent                                                  tagged findings grounded in the observed tra-     1235
+1188   The GUI Agent is responsible for playing each                    jectory.                                          1236
+1189   candidate build and producing structured feedback
+1190   that the Game Agent consumes in the next round.               5. Memory capture. At the end of the session,        1237
+
+1191   It does not read source code or inspect internal                 the agent writes reusable interaction patterns,   1238
+
+1192   game state; its judgment is grounded entirely in the             false-positive cases, and game-archetype-         1239
+
+1193   rendered game surface.                                           specific testing heuristics to memory for fu-     1240
+                                                                        ture playtests.                                   1241
+1194   Inputs. At the start of each playtest session, the
+1195   GUI Agent receives: (i) screenshots of the current          Tools. The GUI Agent has access to browser-            1242
+1196   game frame, captured at 1280×720 resolution; (ii)           level interaction tools: browser_screenshot,           1243
+1197   the GAME_GUIDE.md produced by the Game Agent,               browser_click, browser_drag, browser_key,              1244
+1198   which specifies the intended controls, objectives,          browser_type,        browser_scroll,    and            1245
+
+
+                                                              16
+1246   browser_wait, as well as the memory inter-                         Variant                          Rubric Score
+1247   face memory_save. These tools mirror the input                     No Memory                            64.1
+1248   channels available to a human playtester. The                      Episode Only                         69.3
+                                                                          Episode + Skill                      71.8
+1249   agent has no access to the DOM, source code,                       Full (Episode + Skill + World)       72.3
+1250   internal variables, or console logs, ensuring that its
+1251   feedback reflects what playing the game is actually           Table 5: Ablation of the layered memory system on
+1252   like rather than what code inspection reveals.                PlaytestArena. Each layer contributes additively, with
+                                                                     Episode Memory accounting for the largest share and
+1253   Output. At the end of each session, the GUI                   World Memory providing genre-transfer benefits.
+1254   Agent emits a single Markdown report with a fixed
+1255   structure: run outcome and confidence, probe sig-
+                                                                          GUI Agent’s report from the immediately pre-        1293
+1256   nals considered, chronological interaction log, per-
+                                                                          ceding round. Nothing accumulates across            1294
+1257   dimension gameplay assessment, severity-tagged
+                                                                          rounds or across tasks.                             1295
+1258   findings, the most blocking issue, and a recom-
+1259   mended fix direction. This report is parsed down-                • Episode Only. The shared in-task workspace          1296
+1260   stream into the play summary and actionable fix                    is retained (round history, summaries, fix lists,   1297
+1261   list provided to the Game Agent in the next round.                 prior attempts), but cross-task Skill and World     1298
+                                                                          memories are disabled.                              1299
+1262   D.3    Memory System
+                                                                        • Episode + Skill. Each agent additionally car-       1300
+1263   Both agents read from and write to the
+                                                                          ries its own cross-task Skill Memory (role-         1301
+1264   shared memory system described in §4.
+                                                                          specific patterns and strategies), but the cross-   1302
+1265   Memory entries are tagged with layer
+                                                                          agent World Memory is disabled.                     1303
+1266   (episode-shared, skill, or world), owner
+1267   (game-agent,       gui-player,     or shared),                   • Full (Episode + Skill + World). The configu-        1304
+1268   kind (pitfall, fix_pattern, decision,                              ration used in the main experiments.                1305
+1269   interaction_pattern,            false_positive,
+1270   observation), and archetype. Agents query                        Results are reported in Table 5. Removing mem-        1306
+1271   memory at the start of each task scoped by                    ory entirely causes the largest drop, confirming         1307
+1272   archetype and role, and write new entries selec-              that even in-task accumulation is non-trivially use-     1308
+1273   tively at the end of each session, retaining only             ful: without it, the Game Agent often re-introduces      1309
+1274   insights with cross-task reuse value rather than              fixes it has already tried and discarded in earlier      1310
+1275   one-off task details.                                         rounds. Adding Skill Memory yields a further             1311
+                                                                     gain, most pronounced on genres with recurring           1312
+1276   E     Ablation Studies of Play2Code                           implementation pitfalls (e.g., platformer jump arcs,     1313
+                                                                     tower-defense wave scheduling), where the Game           1314
+1277   To isolate where Play2Code’s gains come from,                 Agent benefits from patterns crystallized on earlier     1315
+1278   we ablate the layered memory system (Episode,                 tasks. World Memory contributes a smaller but            1316
+1279   Skill, World). All ablations are conducted on                 consistent improvement, with the clearest gains on       1317
+1280   PlaytestArena using GPT-5.4 as the backbone for               genres underrepresented in the agent’s prior expe-       1318
+1281   both the Game Agent and the GUI Agent, and GPT-               rience, suggesting that shared design-level knowl-       1319
+1282   5.5 as the judge, with the same settings as in the            edge transfers across agents and across tasks.           1320
+1283   main text. We report the same rubric-pass score as               Taken together, the ablations support that            1321
+1284   in the main text.                                             each memory layer is independently useful, with          1322
+1285      Play2Code organizes memory along two dimen-                Episode Memory carrying the largest share, Skill         1323
+1286   sions, lifecycle (in-task vs. cross-task) and scope           Memory accumulating role-specific operational            1324
+1287   (private, shared, or common), yielding three layers:          know-how across tasks, and World Memory trans-           1325
+1288   Episode Memory, Skill Memory, and World Mem-                  ferring design-level knowledge across agents and         1326
+1289   ory (§4). To test whether each layer carries its own          genres.                                                  1327
+1290   weight, we evaluate four variants:
+
+1291       • No Memory. The Game Agent sees only the
+1292         current prompt, the previous build, and the
+
+                                                                17
+

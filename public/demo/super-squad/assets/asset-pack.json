@@ -1,0 +1,866 @@
+{
+  "assetPack": {
+    "files": [
+      {
+        "type": "json",
+        "key": "animations",
+        "url": "assets/animations.json"
+      },
+      {
+        "type": "animation",
+        "key": "animations_auto",
+        "url": "assets/animations.json"
+      }
+    ]
+  },
+  "backgrounds": {
+    "files": [
+      {
+        "type": "image",
+        "key": "level1_bg",
+        "url": "assets/level1_bg.png"
+      },
+      {
+        "type": "image",
+        "key": "level2_bg",
+        "url": "assets/level2_bg.png"
+      },
+      {
+        "type": "image",
+        "key": "level3_bg",
+        "url": "assets/level3_bg.png"
+      }
+    ]
+  },
+  "tilesets": {
+    "files": [
+      {
+        "type": "image",
+        "key": "city_tiles",
+        "url": "assets/city_tiles.png"
+      },
+      {
+        "type": "image",
+        "key": "helicarrier_tiles",
+        "url": "assets/helicarrier_tiles.png"
+      },
+      {
+        "type": "image",
+        "key": "titan_tiles",
+        "url": "assets/titan_tiles.png"
+      }
+    ]
+  },
+  "ultron_animations": {
+    "files": [
+      {
+        "type": "image",
+        "key": "ultron_sentry_idle_01",
+        "url": "assets/ultron_sentry_idle_01.png"
+      },
+      {
+        "type": "image",
+        "key": "ultron_sentry_idle_02",
+        "url": "assets/ultron_sentry_idle_02.png"
+      },
+      {
+        "type": "image",
+        "key": "ultron_sentry_run_01",
+        "url": "assets/ultron_sentry_run_01.png"
+      },
+      {
+        "type": "image",
+        "key": "ultron_sentry_run_02",
+        "url": "assets/ultron_sentry_run_02.png"
+      },
+      {
+        "type": "image",
+        "key": "ultron_sentry_jump_01",
+        "url": "assets/ultron_sentry_jump_01.png"
+      },
+      {
+        "type": "image",
+        "key": "ultron_sentry_jump_02",
+        "url": "assets/ultron_sentry_jump_02.png"
+      },
+      {
+        "type": "image",
+        "key": "ultron_sentry_attack_1_01",
+        "url": "assets/ultron_sentry_attack_01_01.png"
+      },
+      {
+        "type": "image",
+        "key": "ultron_sentry_attack_1_02",
+        "url": "assets/ultron_sentry_attack_01_02.png"
+      },
+      {
+        "type": "image",
+        "key": "ultron_sentry_attack_2_01",
+        "url": "assets/ultron_sentry_attack_02_01.png"
+      },
+      {
+        "type": "image",
+        "key": "ultron_sentry_attack_2_02",
+        "url": "assets/ultron_sentry_attack_02_02.png"
+      },
+      {
+        "type": "image",
+        "key": "ultron_sentry_die_01",
+        "url": "assets/ultron_sentry_die_01.png"
+      },
+      {
+        "type": "image",
+        "key": "ultron_sentry_die_02",
+        "url": "assets/ultron_sentry_die_02.png"
+      }
+    ]
+  },
+  "hulk_animations": {
+    "files": [
+      {
+        "type": "image",
+        "key": "hulk_idle_01",
+        "url": "assets/hulk_idle_01.png"
+      },
+      {
+        "type": "image",
+        "key": "hulk_idle_02",
+        "url": "assets/hulk_idle_02.png"
+      },
+      {
+        "type": "image",
+        "key": "hulk_run_01",
+        "url": "assets/hulk_run_01.png"
+      },
+      {
+        "type": "image",
+        "key": "hulk_run_02",
+        "url": "assets/hulk_run_02.png"
+      },
+      {
+        "type": "image",
+        "key": "hulk_jump_01",
+        "url": "assets/hulk_jump_01.png"
+      },
+      {
+        "type": "image",
+        "key": "hulk_jump_02",
+        "url": "assets/hulk_jump_02.png"
+      },
+      {
+        "type": "image",
+        "key": "hulk_attack_1_01",
+        "url": "assets/hulk_attack_01_01.png"
+      },
+      {
+        "type": "image",
+        "key": "hulk_attack_1_02",
+        "url": "assets/hulk_attack_01_02.png"
+      },
+      {
+        "type": "image",
+        "key": "hulk_attack_2_01",
+        "url": "assets/hulk_attack_02_01.png"
+      },
+      {
+        "type": "image",
+        "key": "hulk_attack_2_02",
+        "url": "assets/hulk_attack_02_02.png"
+      },
+      {
+        "type": "image",
+        "key": "hulk_die_01",
+        "url": "assets/hulk_die_01.png"
+      },
+      {
+        "type": "image",
+        "key": "hulk_die_02",
+        "url": "assets/hulk_die_02.png"
+      },
+      {
+        "type": "image",
+        "key": "hulk_charge",
+        "url": "assets/hulk_charge.png"
+      }
+    ]
+  },
+  "hulk_videos": {
+    "files": [
+      {
+        "type": "video",
+        "key": "hulk_idle_video",
+        "url": "assets/hulk_idle_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "hulk_run_video",
+        "url": "assets/hulk_run_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "hulk_jump_video",
+        "url": "assets/hulk_jump_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "hulk_attack_1_video",
+        "url": "assets/hulk_attack_01_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "hulk_attack_2_video",
+        "url": "assets/hulk_attack_02_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "hulk_die_video",
+        "url": "assets/hulk_die_video.mp4"
+      }
+    ]
+  },
+  "audio": {
+    "files": [
+      {
+        "type": "audio",
+        "key": "hulk_idle_sfx",
+        "url": "assets/hulk_idle_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "hulk_run_sfx",
+        "url": "assets/hulk_run_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "hulk_jump_sfx",
+        "url": "assets/hulk_jump_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "hulk_attack_1_sfx",
+        "url": "assets/hulk_attack_01_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "hulk_attack_2_sfx",
+        "url": "assets/hulk_attack_02_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "hulk_die_sfx",
+        "url": "assets/hulk_die_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "jump_sfx",
+        "url": "assets/jump_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "melee_hit_sfx",
+        "url": "assets/melee_hit_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "ranged_shot_sfx",
+        "url": "assets/ranged_shot_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "explosion_sfx",
+        "url": "assets/explosion_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "damage_sfx",
+        "url": "assets/damage_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "death_sfx",
+        "url": "assets/death_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "coin_sfx",
+        "url": "assets/coin_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "victory_sfx",
+        "url": "assets/victory_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "ultimate_sfx",
+        "url": "assets/ultimate_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "thanos_roar_sfx",
+        "url": "assets/thanos_roar_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "level1_bgm",
+        "url": "assets/level1_bgm.wav"
+      },
+      {
+        "type": "audio",
+        "key": "level2_bgm",
+        "url": "assets/level2_bgm.wav"
+      },
+      {
+        "type": "audio",
+        "key": "level3_bgm",
+        "url": "assets/level3_bgm.wav"
+      },
+      {
+        "type": "audio",
+        "key": "ironman_idle_sfx",
+        "url": "assets/ironman_idle_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "ironman_run_sfx",
+        "url": "assets/ironman_run_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "ironman_jump_sfx",
+        "url": "assets/ironman_jump_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "ironman_attack_1_sfx",
+        "url": "assets/ironman_attack_1_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "ironman_attack_2_sfx",
+        "url": "assets/ironman_attack_2_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "ironman_die_sfx",
+        "url": "assets/ironman_die_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "thor_idle_sfx",
+        "url": "assets/thor_idle_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "thor_run_sfx",
+        "url": "assets/thor_run_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "thor_jump_sfx",
+        "url": "assets/thor_jump_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "thor_attack_1_sfx",
+        "url": "assets/thor_attack_1_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "thor_attack_2_sfx",
+        "url": "assets/thor_attack_2_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "thor_die_sfx",
+        "url": "assets/thor_die_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "thanos_idle_sfx",
+        "url": "assets/thanos_idle_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "ultron_sentry_idle_sfx",
+        "url": "assets/ultron_sentry_idle_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "thanos_run_sfx",
+        "url": "assets/thanos_run_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "ultron_sentry_run_sfx",
+        "url": "assets/ultron_sentry_run_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "thanos_jump_sfx",
+        "url": "assets/thanos_jump_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "ultron_sentry_jump_sfx",
+        "url": "assets/ultron_sentry_jump_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "thanos_attack_1_sfx",
+        "url": "assets/thanos_attack_01_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "ultron_sentry_attack_1_sfx",
+        "url": "assets/ultron_sentry_attack_01_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "thanos_attack_2_sfx",
+        "url": "assets/thanos_attack_02_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "ultron_sentry_attack_2_sfx",
+        "url": "assets/ultron_sentry_attack_02_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "thanos_die_sfx",
+        "url": "assets/thanos_die_sfx.wav"
+      },
+      {
+        "type": "audio",
+        "key": "ultron_sentry_die_sfx",
+        "url": "assets/ultron_sentry_die_sfx.wav"
+      }
+    ]
+  },
+  "images": {
+    "files": [
+      {
+        "type": "image",
+        "key": "hulk_portrait",
+        "url": "assets/hulk_portrait.png"
+      },
+      {
+        "type": "image",
+        "key": "shockwave_effect",
+        "url": "assets/shockwave_effect.png"
+      },
+      {
+        "type": "image",
+        "key": "thor_portrait",
+        "url": "assets/thor_portrait.png"
+      },
+      {
+        "type": "image",
+        "key": "ironman_portrait",
+        "url": "assets/ironman_portrait.png"
+      },
+      {
+        "type": "image",
+        "key": "repulsor_blast",
+        "url": "assets/repulsor_blast.png"
+      },
+      {
+        "type": "image",
+        "key": "mjolnir_projectile",
+        "url": "assets/mjolnir_projectile.png"
+      },
+      {
+        "type": "image",
+        "key": "micro_missile",
+        "url": "assets/micro_missile.png"
+      },
+      {
+        "type": "image",
+        "key": "lightning_bolt",
+        "url": "assets/lightning_bolt.png"
+      },
+      {
+        "type": "image",
+        "key": "unibeam_effect",
+        "url": "assets/unibeam_effect.png"
+      },
+      {
+        "type": "image",
+        "key": "power_stone_glow",
+        "url": "assets/power_stone_glow.png"
+      },
+      {
+        "type": "image",
+        "key": "space_dash_effect",
+        "url": "assets/space_dash_effect.png"
+      },
+      {
+        "type": "image",
+        "key": "select_bg",
+        "url": "assets/select_bg.png"
+      },
+      {
+        "type": "image",
+        "key": "ground_shockwave",
+        "url": "assets/ground_shockwave.png"
+      },
+      {
+        "type": "image",
+        "key": "robot_explosion",
+        "url": "assets/robot_explosion.png"
+      }
+    ]
+  },
+  "tilemaps": {
+    "files": [
+      {
+        "type": "tilemapTiledJSON",
+        "key": "level1_map",
+        "url": "assets/level1_map.json"
+      },
+      {
+        "type": "tilemapTiledJSON",
+        "key": "level2_map",
+        "url": "assets/level2_map.json"
+      },
+      {
+        "type": "tilemapTiledJSON",
+        "key": "level3_map",
+        "url": "assets/level3_map.json"
+      }
+    ]
+  },
+  "ironman_animations": {
+    "files": [
+      {
+        "type": "image",
+        "key": "ironman_idle_01",
+        "url": "assets/ironman_idle_01.png"
+      },
+      {
+        "type": "image",
+        "key": "ironman_idle_02",
+        "url": "assets/ironman_idle_02.png"
+      },
+      {
+        "type": "image",
+        "key": "ironman_run_01",
+        "url": "assets/ironman_run_01.png"
+      },
+      {
+        "type": "image",
+        "key": "ironman_run_02",
+        "url": "assets/ironman_run_02.png"
+      },
+      {
+        "type": "image",
+        "key": "ironman_jump_01",
+        "url": "assets/ironman_jump_01.png"
+      },
+      {
+        "type": "image",
+        "key": "ironman_jump_02",
+        "url": "assets/ironman_jump_02.png"
+      },
+      {
+        "type": "image",
+        "key": "ironman_attack_1_01",
+        "url": "assets/ironman_attack_1_01.png"
+      },
+      {
+        "type": "image",
+        "key": "ironman_attack_1_02",
+        "url": "assets/ironman_attack_1_02.png"
+      },
+      {
+        "type": "image",
+        "key": "ironman_attack_2_01",
+        "url": "assets/ironman_attack_2_01.png"
+      },
+      {
+        "type": "image",
+        "key": "ironman_attack_2_02",
+        "url": "assets/ironman_attack_2_02.png"
+      },
+      {
+        "type": "image",
+        "key": "ironman_die_01",
+        "url": "assets/ironman_die_01.png"
+      },
+      {
+        "type": "image",
+        "key": "ironman_die_02",
+        "url": "assets/ironman_die_02.png"
+      }
+    ]
+  },
+  "ironman_videos": {
+    "files": [
+      {
+        "type": "video",
+        "key": "ironman_idle_video",
+        "url": "assets/ironman_idle_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "ironman_run_video",
+        "url": "assets/ironman_run_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "ironman_jump_video",
+        "url": "assets/ironman_jump_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "ironman_attack_1_video",
+        "url": "assets/ironman_attack_1_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "ironman_attack_2_video",
+        "url": "assets/ironman_attack_2_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "ironman_die_video",
+        "url": "assets/ironman_die_video.mp4"
+      }
+    ]
+  },
+  "thor_animations": {
+    "files": [
+      {
+        "type": "image",
+        "key": "thor_idle_01",
+        "url": "assets/thor_idle_01.png"
+      },
+      {
+        "type": "image",
+        "key": "thor_idle_02",
+        "url": "assets/thor_idle_02.png"
+      },
+      {
+        "type": "image",
+        "key": "thor_run_01",
+        "url": "assets/thor_run_01.png"
+      },
+      {
+        "type": "image",
+        "key": "thor_run_02",
+        "url": "assets/thor_run_02.png"
+      },
+      {
+        "type": "image",
+        "key": "thor_jump_01",
+        "url": "assets/thor_jump_01.png"
+      },
+      {
+        "type": "image",
+        "key": "thor_jump_02",
+        "url": "assets/thor_jump_02.png"
+      },
+      {
+        "type": "image",
+        "key": "thor_attack_1_01",
+        "url": "assets/thor_attack_1_01.png"
+      },
+      {
+        "type": "image",
+        "key": "thor_attack_1_02",
+        "url": "assets/thor_attack_1_02.png"
+      },
+      {
+        "type": "image",
+        "key": "thor_attack_2_01",
+        "url": "assets/thor_attack_2_01.png"
+      },
+      {
+        "type": "image",
+        "key": "thor_attack_2_02",
+        "url": "assets/thor_attack_2_02.png"
+      },
+      {
+        "type": "image",
+        "key": "thor_die_01",
+        "url": "assets/thor_die_01.png"
+      },
+      {
+        "type": "image",
+        "key": "thor_die_02",
+        "url": "assets/thor_die_02.png"
+      },
+      {
+        "type": "image",
+        "key": "thor_charge",
+        "url": "assets/thor_charge.png"
+      }
+    ]
+  },
+  "thor_videos": {
+    "files": [
+      {
+        "type": "video",
+        "key": "thor_idle_video",
+        "url": "assets/thor_idle_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "thor_run_video",
+        "url": "assets/thor_run_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "thor_jump_video",
+        "url": "assets/thor_jump_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "thor_attack_1_video",
+        "url": "assets/thor_attack_1_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "thor_attack_2_video",
+        "url": "assets/thor_attack_2_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "thor_die_video",
+        "url": "assets/thor_die_video.mp4"
+      }
+    ]
+  },
+  "thanos_animations": {
+    "files": [
+      {
+        "type": "image",
+        "key": "thanos_idle_01",
+        "url": "assets/thanos_idle_01.png"
+      },
+      {
+        "type": "image",
+        "key": "thanos_idle_02",
+        "url": "assets/thanos_idle_02.png"
+      },
+      {
+        "type": "image",
+        "key": "thanos_run_01",
+        "url": "assets/thanos_run_01.png"
+      },
+      {
+        "type": "image",
+        "key": "thanos_run_02",
+        "url": "assets/thanos_run_02.png"
+      },
+      {
+        "type": "image",
+        "key": "thanos_jump_01",
+        "url": "assets/thanos_jump_01.png"
+      },
+      {
+        "type": "image",
+        "key": "thanos_jump_02",
+        "url": "assets/thanos_jump_02.png"
+      },
+      {
+        "type": "image",
+        "key": "thanos_attack_1_01",
+        "url": "assets/thanos_attack_01_01.png"
+      },
+      {
+        "type": "image",
+        "key": "thanos_attack_1_02",
+        "url": "assets/thanos_attack_01_02.png"
+      },
+      {
+        "type": "image",
+        "key": "thanos_attack_2_01",
+        "url": "assets/thanos_attack_02_01.png"
+      },
+      {
+        "type": "image",
+        "key": "thanos_attack_2_02",
+        "url": "assets/thanos_attack_02_02.png"
+      },
+      {
+        "type": "image",
+        "key": "thanos_die_01",
+        "url": "assets/thanos_die_01.png"
+      },
+      {
+        "type": "image",
+        "key": "thanos_die_02",
+        "url": "assets/thanos_die_02.png"
+      }
+    ]
+  },
+  "thanos_videos": {
+    "files": [
+      {
+        "type": "video",
+        "key": "thanos_idle_video",
+        "url": "assets/thanos_idle_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "thanos_run_video",
+        "url": "assets/thanos_run_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "thanos_jump_video",
+        "url": "assets/thanos_jump_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "thanos_attack_1_video",
+        "url": "assets/thanos_attack_01_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "thanos_attack_2_video",
+        "url": "assets/thanos_attack_02_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "thanos_die_video",
+        "url": "assets/thanos_die_video.mp4"
+      }
+    ]
+  },
+  "ultron_videos": {
+    "files": [
+      {
+        "type": "video",
+        "key": "ultron_sentry_idle_video",
+        "url": "assets/ultron_sentry_idle_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "ultron_sentry_run_video",
+        "url": "assets/ultron_sentry_run_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "ultron_sentry_jump_video",
+        "url": "assets/ultron_sentry_jump_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "ultron_sentry_attack_1_video",
+        "url": "assets/ultron_sentry_attack_01_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "ultron_sentry_attack_2_video",
+        "url": "assets/ultron_sentry_attack_02_video.mp4"
+      },
+      {
+        "type": "video",
+        "key": "ultron_sentry_die_video",
+        "url": "assets/ultron_sentry_die_video.mp4"
+      }
+    ]
+  }
+}
