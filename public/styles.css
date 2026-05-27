@@ -496,6 +496,10 @@ h2 {
   letter-spacing: 0;
 }
 
+.svg-title.small {
+  font-size: 27px;
+}
+
 .svg-copy,
 .svg-step {
   fill: #737373;
