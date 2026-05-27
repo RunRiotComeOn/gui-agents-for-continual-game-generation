@@ -218,7 +218,7 @@ h1 {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  width: min(100%, 560px);
+  width: min(100%, 760px);
   min-height: 62px;
   margin: 28px auto 0;
   padding: 7px;
@@ -229,6 +229,7 @@ h1 {
 
 .button {
   display: inline-flex;
+  flex: 1 1 0;
   align-items: center;
   justify-content: center;
   min-height: 46px;
