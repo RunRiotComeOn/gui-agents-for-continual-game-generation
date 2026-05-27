@@ -18,6 +18,7 @@
       </a>
       <nav>
         <a href="#method">Method</a>
+        <a href="#arena">PlaytestArena</a>
         <a href="#architecture">Architecture</a>
         <a href="#gallery">Demos</a>
       </nav>
@@ -82,6 +83,25 @@
         </div>
       </section>
 
+      <section class="arena" id="arena">
+        <div class="section-heading split">
+          <div>
+            <p class="eyebrow">PlaytestArena</p>
+            <h2>The environment makes quality observable.</h2>
+          </div>
+          <p>
+            PlaytestArena frames each game generation task as a playable evaluation setting:
+            a prompt defines intent, rubrics define observable criteria, and the GUI agent
+            evaluates the result through interaction.
+          </p>
+        </div>
+        <div class="arena-line">
+          <p><strong>Game Prompt</strong><span>the intended game, mechanics, and player experience</span></p>
+          <p><strong>Rubrics</strong><span>criterion-level checks with expected in-game behavior</span></p>
+          <p><strong>GUI as Evaluator</strong><span>objective playtesting at the same screen surface as a player</span></p>
+        </div>
+      </section>
+
       <section class="architecture" id="architecture">
         <div class="section-heading split">
           <div>
@@ -95,9 +115,9 @@
         </div>
 
         <div class="architecture-panel">
-          <svg viewBox="0 0 1180 720" role="img" aria-labelledby="arch-title arch-desc">
+          <svg viewBox="0 0 1180 640" role="img" aria-labelledby="arch-title arch-desc">
             <title id="arch-title">Play2Code architecture diagram</title>
-            <desc id="arch-desc">A game agent and GUI agent iterate through generate, play and report, and revise steps inside PlaytestArena, using game prompts, rubrics, and episode, skill, and world memory.</desc>
+            <desc id="arch-desc">A game agent and GUI agent iterate through generate, play and report, and revise steps with episode, skill, and world memory.</desc>
             <defs>
               <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
                 <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#000000" flood-opacity="0.09" />
@@ -107,7 +127,7 @@
               </marker>
             </defs>
 
-            <rect x="24" y="24" width="1132" height="672" rx="40" fill="#ffffff" stroke="#ededeb" />
+            <rect x="24" y="24" width="1132" height="592" rx="40" fill="#ffffff" stroke="#ededeb" />
             <text x="590" y="78" class="svg-overline">CONTINUAL GAME GENERATION LOOP</text>
 
             <g class="arch-node" tabindex="0" role="button" aria-label="Game Agent details" data-detail="game-agent" filter="url(#softShadow)">
@@ -137,33 +157,24 @@
 
             <path d="M 384 215 L 430 215" class="svg-arrow" marker-end="url(#arrow)" />
             <path d="M 750 215 L 796 215" class="svg-arrow" marker-end="url(#arrow)" />
-            <path d="M 956 313 L 956 340" class="svg-arrow" marker-end="url(#arrow)" />
-            <path class="arch-node svg-arrow return" tabindex="0" role="button" aria-label="Between Rounds details" data-detail="between-rounds" d="M 810 430 C 720 476, 472 476, 370 320" marker-end="url(#arrow)" />
+            <path class="arch-node svg-arrow return" tabindex="0" role="button" aria-label="Between Rounds details" data-detail="between-rounds" d="M 956 316 C 914 388, 726 414, 590 414 C 454 414, 266 388, 224 316" marker-end="url(#arrow)" />
 
             <text x="407" y="194" class="svg-step middle">revise</text>
             <text x="773" y="194" class="svg-step middle">play</text>
-            <text x="590" y="456" class="svg-step middle">diagnosis + actionable fix list</text>
-
-            <g class="arch-node" tabindex="0" role="button" aria-label="PlaytestArena environment details" data-detail="playtestarena" filter="url(#softShadow)">
-              <rect x="810" y="346" width="292" height="126" rx="30" fill="#fbfaf8" stroke="#e7e7e4" />
-              <text x="844" y="389" class="svg-label">PlaytestArena environment</text>
-              <text x="844" y="426" class="svg-title small">Prompt + Rubrics</text>
-              <text x="844" y="453" class="svg-copy">criterion and expected behavior</text>
-              <rect class="arch-hitbox" x="810" y="346" width="292" height="126" rx="30" />
-            </g>
+            <text x="590" y="390" class="svg-step middle">diagnosis + actionable fix list</text>
 
             <g class="arch-node" tabindex="0" role="button" aria-label="Memory System details" data-detail="memory-system" filter="url(#softShadow)">
-              <rect x="86" y="548" width="1008" height="102" rx="32" fill="#f4f4f2" />
-              <text x="130" y="593" class="svg-label">Memory system</text>
-              <rect x="326" y="574" width="166" height="44" rx="22" fill="#ffffff" stroke="#e7e7e4" />
-              <rect x="510" y="574" width="142" height="44" rx="22" fill="#ffffff" stroke="#e7e7e4" />
-              <rect x="670" y="574" width="154" height="44" rx="22" fill="#ffffff" stroke="#e7e7e4" />
-              <rect x="842" y="574" width="166" height="44" rx="22" fill="#ffffff" stroke="#e7e7e4" />
-              <text x="409" y="602" class="svg-chip middle">Episode</text>
-              <text x="581" y="602" class="svg-chip middle">Skill</text>
-              <text x="747" y="602" class="svg-chip middle">World</text>
-              <text x="925" y="602" class="svg-chip middle">Shared Space</text>
-              <rect class="arch-hitbox" x="86" y="548" width="1008" height="102" rx="32" />
+              <rect x="86" y="466" width="1008" height="102" rx="32" fill="#f4f4f2" />
+              <text x="130" y="511" class="svg-label">Memory system</text>
+              <rect x="326" y="492" width="166" height="44" rx="22" fill="#ffffff" stroke="#e7e7e4" />
+              <rect x="510" y="492" width="142" height="44" rx="22" fill="#ffffff" stroke="#e7e7e4" />
+              <rect x="670" y="492" width="154" height="44" rx="22" fill="#ffffff" stroke="#e7e7e4" />
+              <rect x="842" y="492" width="166" height="44" rx="22" fill="#ffffff" stroke="#e7e7e4" />
+              <text x="409" y="520" class="svg-chip middle">Episode</text>
+              <text x="581" y="520" class="svg-chip middle">Skill</text>
+              <text x="747" y="520" class="svg-chip middle">World</text>
+              <text x="925" y="520" class="svg-chip middle">Shared Space</text>
+              <rect class="arch-hitbox" x="86" y="466" width="1008" height="102" rx="32" />
             </g>
           </svg>
           <aside class="arch-detail" id="archDetail" aria-live="polite" aria-hidden="true">
@@ -188,17 +199,6 @@
         <div class="demo-grid" id="demoGrid"></div>
       </section>
 
-      <section class="paper" id="paper">
-        <div class="section-heading centered">
-          <p class="eyebrow">Paper Notes</p>
-          <h2>What Play2Code adds.</h2>
-        </div>
-        <div class="paper-line">
-          <p><strong>PlaytestArena.</strong> Each task couples a game prompt with rubric criteria and expected behaviors.</p>
-          <p><strong>GUI as Objective Evaluator.</strong> The evaluator meets the game at the same surface as a human playtester: the screen.</p>
-          <p><strong>Continual Refinement.</strong> Feedback from play becomes an optimization signal for the next code revision.</p>
-        </div>
-      </section>
     </main>
 
     <script src="./app.js" type="module"></script>

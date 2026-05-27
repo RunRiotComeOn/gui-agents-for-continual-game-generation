@@ -350,13 +350,13 @@ h2 {
   line-height: 1.48;
 }
 
-.paper-line {
+.arena-line {
   max-width: 1040px;
   margin: 0 auto;
   border-top: 1px solid var(--line);
 }
 
-.paper-line p {
+.arena-line p {
   display: grid;
   grid-template-columns: 230px minmax(0, 1fr);
   gap: 28px;
@@ -368,11 +368,15 @@ h2 {
   line-height: 1.45;
 }
 
-.paper-line strong {
+.arena-line strong {
   color: var(--ink);
   font-family: "Times New Roman", Times, Georgia, serif;
   font-size: 22px;
   font-weight: 400;
+}
+
+.arena-line span {
+  display: block;
 }
 
 .architecture-panel {
@@ -494,10 +498,6 @@ h2 {
   font-size: 31px;
   font-weight: 400;
   letter-spacing: 0;
-}
-
-.svg-title.small {
-  font-size: 27px;
 }
 
 .svg-copy,
@@ -649,12 +649,12 @@ iframe {
     grid-template-columns: 1fr;
   }
 
-  .paper-line p {
+  .arena-line p {
     display: block;
     font-size: 16px;
   }
 
-  .paper-line strong {
+  .arena-line strong {
     display: block;
     margin-bottom: 6px;
   }

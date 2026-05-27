@@ -83,11 +83,6 @@ const architectureDetails = {
     title: "Play without code access",
     body: "Loads the game in a browser and plays through it using only memory and a game guide. At episode end, it writes a play summary and actionable fixes that connect observed failures to concrete code-level changes."
   },
-  "playtestarena": {
-    kicker: "PlaytestArena",
-    title: "Prompt, rubric, and evaluator",
-    body: "Provides the game generation environment: a natural-language game prompt, observable rubric criteria, and expected in-game behaviors. The GUI agent serves as the objective evaluator by checking the playable build through the screen rather than reading code."
-  },
   "between-rounds": {
     kicker: "Between Rounds",
     title: "Advice, not instruction",
