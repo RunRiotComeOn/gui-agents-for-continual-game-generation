@@ -269,14 +269,13 @@ h1 {
 }
 
 .method,
+.arena,
 .architecture,
-.gallery,
-.paper {
+.gallery {
   padding: 104px max(20px, calc((100vw - 1180px) / 2));
 }
 
-.method,
-.paper {
+.method {
   background: rgba(255, 255, 255, 0.5);
 }
 
